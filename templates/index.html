@@ -21,7 +21,7 @@
                         
                         <!-- 메인 검색 바 -->
                         <div class="input-group" style="min-width: 400px; max-width: 600px;">
-                            <input type="text" class="form-control" placeholder="주식 티커(미국) 나 코드(대한민국)을 입력해주세요" id="mainSearchInput" style="font-size: 14px;">
+                            <input type="text" class="form-control" placeholder="주식 티커(미국) 나 코드(대한민국)을 입력해주세요" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
                             <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -43,6 +43,16 @@
     document.addEventListener('DOMContentLoaded', function() {
         // 5년이 기본값으로 설정
         document.getElementById('periodSelect').value = '5';
+        
+        // 입력 제한 설정
+        const searchInput = document.getElementById('mainSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                if (e.target.value.length > 50) {
+                    e.target.value = e.target.value.substring(0, 50);
+                }
+            });
+        }
     });
 
     // 검색 기능
