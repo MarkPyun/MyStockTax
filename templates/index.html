@@ -3,119 +3,59 @@
 {% block title %}MyStockTax - 홈{% endblock %}
 
 {% block content %}
-<!-- 대시보드 통계 -->
-<div class="row mb-4" id="dashboard-stats">
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card">
-            <div class="card-body text-center">
-                <i class="fas fa-coins"></i>
-                <h4 class="mt-2" id="total-value">-</h4>
-                <p class="mb-0">총 자산</p>
+<!-- 어두운 테마 홈 화면 -->
+<div class="dark-home-container">
+    <!-- 상단 로고 영역 -->
+    <div class="logo-section">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-shield-alt"></i>
             </div>
         </div>
+        <div class="active-indicator"></div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
-            <div class="card-body text-center">
-                <i class="fas fa-chart-line"></i>
-                <h4 class="mt-2" id="total-profit">-</h4>
-                <p class="mb-0">총 수익</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
-            <div class="card-body text-center">
-                <i class="fas fa-briefcase"></i>
-                <h4 class="mt-2" id="total-stocks">-</h4>
-                <p class="mb-0">보유 종목</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
-            <div class="card-body text-center">
-                <i class="fas fa-exchange-alt"></i>
-                <h4 class="mt-2" id="total-transactions">-</h4>
-                <p class="mb-0">총 거래</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- 액션 버튼들 -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">
-                    <i class="fas fa-tools me-2"></i>빠른 작업
-                </h5>
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-primary w-100" onclick="showAddStockModal()">
-                            <i class="fas fa-plus me-2"></i>주식 추가
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-success w-100" onclick="showAddTransactionModal()">
-                            <i class="fas fa-exchange-alt me-2"></i>거래 기록
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-info w-100" onclick="showPortfolio()">
-                            <i class="fas fa-briefcase me-2"></i>포트폴리오 보기
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-warning w-100" onclick="exportData()">
-                            <i class="fas fa-download me-2"></i>데이터 내보내기
-                        </button>
-                    </div>
+    <!-- 메인 검색 영역 -->
+    <div class="search-section">
+        <div class="search-container">
+            <!-- 드롭다운 버튼 -->
+            <div class="dropdown-btn">
+                <i class="fas fa-chevron-up"></i>
+                <div class="dropdown-arrow"></div>
+            </div>
+            
+            <!-- 메인 검색 바 -->
+            <div class="main-search-bar">
+                <input type="text" class="search-input" placeholder="종목명, 종목코드, 키워드를 입력하세요..." id="mainSearchInput">
+                <div class="search-controls">
+                    <button class="clear-btn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 최근 거래 내역 -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-history me-2"></i>최근 거래 내역
-                </h5>
-                <button class="btn btn-sm btn-outline-primary" onclick="showTransactions()">
-                    전체 보기
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="recent-transactions">
-                        <thead>
-                            <tr>
-                                <th>날짜</th>
-                                <th>종목</th>
-                                <th>유형</th>
-                                <th>수량</th>
-                                <th>가격</th>
-                                <th>총액</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="6" class="text-center text-muted">
-                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <!-- 빠른 액션 버튼들 -->
+    <div class="quick-actions">
+        <button class="action-btn" onclick="showAddStockModal()">
+            <i class="fas fa-plus"></i>
+            <span>주식 추가</span>
+        </button>
+        <button class="action-btn" onclick="showAddTransactionModal()">
+            <i class="fas fa-exchange-alt"></i>
+            <span>거래 기록</span>
+        </button>
+        <button class="action-btn" onclick="showPortfolio()">
+            <i class="fas fa-chart-line"></i>
+            <span>포트폴리오</span>
+        </button>
     </div>
 </div>
+
 
 <!-- 주식 추가 모달 -->
 <div class="modal fade" id="addStockModal" tabindex="-1">
@@ -208,91 +148,48 @@
 <script>
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        loadDashboardData();
-        loadRecentTransactions();
         setupTransactionDate();
     });
 
-    // 대시보드 데이터 로드
-    async function loadDashboardData() {
-        try {
-            const summary = await apiCall('/api/portfolio/summary');
-            const transactions = await apiCall('/api/transactions');
-            
-            document.getElementById('total-value').textContent = formatCurrency(summary.total_value);
-            document.getElementById('total-profit').textContent = formatCurrency(summary.total_profit);
-            document.getElementById('total-stocks').textContent = summary.total_stocks;
-            document.getElementById('total-transactions').textContent = transactions.length;
-            
-            // 수익 색상 변경
-            const profitElement = document.getElementById('total-profit');
-            if (summary.total_profit >= 0) {
-                profitElement.style.color = '#27ae60';
-            } else {
-                profitElement.style.color = '#e74c3c';
-            }
-        } catch (error) {
-            console.error('대시보드 데이터 로드 오류:', error);
+    // 검색 기능
+    function performSearch() {
+        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        if (searchTerm) {
+            showAlert(`"${searchTerm}" 검색 결과를 준비 중입니다.`, 'info');
+            // 실제 검색 로직 구현 예정
+        } else {
+            showAlert('검색어를 입력해주세요.', 'warning');
         }
     }
 
-    // 최근 거래 내역 로드
-    async function loadRecentTransactions() {
-        try {
-            const transactions = await apiCall('/api/transactions');
-            const stocks = await apiCall('/api/stocks');
-            
-            // 최근 5개 거래만 표시
-            const recentTransactions = transactions.slice(-5).reverse();
-            
-            const tbody = document.querySelector('#recent-transactions tbody');
-            
-            if (recentTransactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">
-                            <i class="fas fa-inbox me-2"></i>거래 내역이 없습니다.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = recentTransactions.map(transaction => {
-                const stock = stocks.find(s => s.id === transaction.stock_id);
-                const stockName = stock ? stock.name : '알 수 없음';
-                const totalAmount = transaction.quantity * transaction.price;
-                const typeClass = transaction.type === 'buy' ? 'text-success' : 'text-danger';
-                const typeText = transaction.type === 'buy' ? '매수' : '매도';
-                
-                return `
-                    <tr>
-                        <td>${new Date(transaction.date).toLocaleDateString('ko-KR')}</td>
-                        <td>${stockName}</td>
-                        <td><span class="${typeClass}">${typeText}</span></td>
-                        <td>${formatNumber(transaction.quantity)}주</td>
-                        <td>${formatCurrency(transaction.price)}</td>
-                        <td>${formatCurrency(totalAmount)}</td>
-                    </tr>
-                `;
-            }).join('');
-        } catch (error) {
-            console.error('거래 내역 로드 오류:', error);
-        }
+    // 검색어 지우기
+    function clearSearch() {
+        document.getElementById('mainSearchInput').value = '';
+        document.getElementById('mainSearchInput').focus();
     }
+
+    // 엔터키로 검색
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('mainSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+    });
 
     // 모달 표시 함수들
     function showAddStockModal() {
-        document.getElementById('addStockModal').classList.add('show');
-        document.getElementById('addStockModal').style.display = 'block';
-        document.body.classList.add('modal-open');
+        const modal = new bootstrap.Modal(document.getElementById('addStockModal'));
+        modal.show();
     }
 
     function showAddTransactionModal() {
         loadStocksForTransaction();
-        document.getElementById('addTransactionModal').classList.add('show');
-        document.getElementById('addTransactionModal').style.display = 'block';
-        document.body.classList.add('modal-open');
+        const modal = new bootstrap.Modal(document.getElementById('addTransactionModal'));
+        modal.show();
     }
 
     // 거래용 종목 목록 로드
@@ -329,7 +226,6 @@
             showAlert('주식이 성공적으로 추가되었습니다.', 'success');
             form.reset();
             bootstrap.Modal.getInstance(document.getElementById('addStockModal')).hide();
-            loadDashboardData();
         } catch (error) {
             console.error('주식 추가 오류:', error);
         }
@@ -355,8 +251,6 @@
             showAlert('거래가 성공적으로 기록되었습니다.', 'success');
             form.reset();
             bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-            loadDashboardData();
-            loadRecentTransactions();
         } catch (error) {
             console.error('거래 추가 오류:', error);
         }
@@ -364,17 +258,7 @@
 
     // 포트폴리오 보기
     function showPortfolio() {
-        window.location.href = '/portfolio';
-    }
-
-    // 거래 내역 보기
-    function showTransactions() {
-        window.location.href = '/transactions';
-    }
-
-    // 데이터 내보내기
-    function exportData() {
-        showAlert('데이터 내보내기 기능은 준비 중입니다.', 'info');
+        window.location.href = '/stock-analysis';
     }
 
     // 거래 날짜 기본값 설정
