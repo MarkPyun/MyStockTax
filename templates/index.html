@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}주식 & 세금 관리 - 홈{% endblock %}
+
+{% block content %}
+<!-- 대시보드 통계 -->
+<div class="row mb-4" id="dashboard-stats">
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-coins"></i>
+                <h4 class="mt-2" id="total-value">-</h4>
+                <p class="mb-0">총 자산</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line"></i>
+                <h4 class="mt-2" id="total-profit">-</h4>
+                <p class="mb-0">총 수익</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
+            <div class="card-body text-center">
+                <i class="fas fa-briefcase"></i>
+                <h4 class="mt-2" id="total-stocks">-</h4>
+                <p class="mb-0">보유 종목</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
+            <div class="card-body text-center">
+                <i class="fas fa-exchange-alt"></i>
+                <h4 class="mt-2" id="total-transactions">-</h4>
+                <p class="mb-0">총 거래</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 액션 버튼들 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-tools me-2"></i>빠른 작업
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-primary w-100" onclick="showAddStockModal()">
+                            <i class="fas fa-plus me-2"></i>주식 추가
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-success w-100" onclick="showAddTransactionModal()">
+                            <i class="fas fa-exchange-alt me-2"></i>거래 기록
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-info w-100" onclick="showPortfolio()">
+                            <i class="fas fa-briefcase me-2"></i>포트폴리오 보기
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-warning w-100" onclick="exportData()">
+                            <i class="fas fa-download me-2"></i>데이터 내보내기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 거래 내역 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>최근 거래 내역
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="showTransactions()">
+                    전체 보기
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="recent-transactions">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>종목</th>
+                                <th>유형</th>
+                                <th>수량</th>
+                                <th>가격</th>
+                                <th>총액</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 주식 추가 모달 -->
+<div class="modal fade" id="addStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>새 주식 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStockForm">
+                    <div class="mb-3">
+                        <label for="stockName" class="form-label">종목명</label>
+                        <input type="text" class="form-control" id="stockName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockSymbol" class="form-label">종목 코드</label>
+                        <input type="text" class="form-control" id="stockSymbol" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockQuantity" class="form-label">보유 수량</label>
+                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockPrice" class="form-label">현재 가격</label>
+                        <input type="number" class="form-control" id="stockPrice" min="0" step="0.01" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addStock()">추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 거래 추가 모달 -->
+<div class="modal fade" id="addTransactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exchange-alt me-2"></i>거래 기록 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addTransactionForm">
+                    <div class="mb-3">
+                        <label for="transactionStock" class="form-label">종목 선택</label>
+                        <select class="form-select" id="transactionStock" required>
+                            <option value="">종목을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionType" class="form-label">거래 유형</label>
+                        <select class="form-select" id="transactionType" required>
+                            <option value="">선택하세요</option>
+                            <option value="buy">매수</option>
+                            <option value="sell">매도</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionQuantity" class="form-label">수량</label>
+                        <input type="number" class="form-control" id="transactionQuantity" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionPrice" class="form-label">가격</label>
+                        <input type="number" class="form-control" id="transactionPrice" min="0" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionDate" class="form-label">거래 날짜</label>
+                        <input type="date" class="form-control" id="transactionDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addTransaction()">추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        loadRecentTransactions();
+        setupTransactionDate();
+    });
+
+    // 대시보드 데이터 로드
+    async function loadDashboardData() {
+        try {
+            const summary = await apiCall('/api/portfolio/summary');
+            const transactions = await apiCall('/api/transactions');
+            
+            document.getElementById('total-value').textContent = formatCurrency(summary.total_value);
+            document.getElementById('total-profit').textContent = formatCurrency(summary.total_profit);
+            document.getElementById('total-stocks').textContent = summary.total_stocks;
+            document.getElementById('total-transactions').textContent = transactions.length;
+            
+            // 수익 색상 변경
+            const profitElement = document.getElementById('total-profit');
+            if (summary.total_profit >= 0) {
+                profitElement.style.color = '#27ae60';
+            } else {
+                profitElement.style.color = '#e74c3c';
+            }
+        } catch (error) {
+            console.error('대시보드 데이터 로드 오류:', error);
+        }
+    }
+
+    // 최근 거래 내역 로드
+    async function loadRecentTransactions() {
+        try {
+            const transactions = await apiCall('/api/transactions');
+            const stocks = await apiCall('/api/stocks');
+            
+            // 최근 5개 거래만 표시
+            const recentTransactions = transactions.slice(-5).reverse();
+            
+            const tbody = document.querySelector('#recent-transactions tbody');
+            
+            if (recentTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <i class="fas fa-inbox me-2"></i>거래 내역이 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = recentTransactions.map(transaction => {
+                const stock = stocks.find(s => s.id === transaction.stock_id);
+                const stockName = stock ? stock.name : '알 수 없음';
+                const totalAmount = transaction.quantity * transaction.price;
+                const typeClass = transaction.type === 'buy' ? 'text-success' : 'text-danger';
+                const typeText = transaction.type === 'buy' ? '매수' : '매도';
+                
+                return `
+                    <tr>
+                        <td>${new Date(transaction.date).toLocaleDateString('ko-KR')}</td>
+                        <td>${stockName}</td>
+                        <td><span class="${typeClass}">${typeText}</span></td>
+                        <td>${formatNumber(transaction.quantity)}주</td>
+                        <td>${formatCurrency(transaction.price)}</td>
+                        <td>${formatCurrency(totalAmount)}</td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (error) {
+            console.error('거래 내역 로드 오류:', error);
+        }
+    }
+
+    // 모달 표시 함수들
+    function showAddStockModal() {
+        document.getElementById('addStockModal').classList.add('show');
+        document.getElementById('addStockModal').style.display = 'block';
+        document.body.classList.add('modal-open');
+    }
+
+    function showAddTransactionModal() {
+        loadStocksForTransaction();
+        document.getElementById('addTransactionModal').classList.add('show');
+        document.getElementById('addTransactionModal').style.display = 'block';
+        document.body.classList.add('modal-open');
+    }
+
+    // 거래용 종목 목록 로드
+    async function loadStocksForTransaction() {
+        try {
+            const stocks = await apiCall('/api/stocks');
+            const select = document.getElementById('transactionStock');
+            
+            select.innerHTML = '<option value="">종목을 선택하세요</option>';
+            stocks.forEach(stock => {
+                select.innerHTML += `<option value="${stock.id}">${stock.name} (${stock.symbol})</option>`;
+            });
+        } catch (error) {
+            console.error('종목 목록 로드 오류:', error);
+        }
+    }
+
+    // 주식 추가
+    async function addStock() {
+        const form = document.getElementById('addStockForm');
+        const formData = {
+            name: document.getElementById('stockName').value,
+            symbol: document.getElementById('stockSymbol').value,
+            quantity: parseInt(document.getElementById('stockQuantity').value),
+            price: parseFloat(document.getElementById('stockPrice').value)
+        };
+
+        try {
+            await apiCall('/api/stocks', {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showAlert('주식이 성공적으로 추가되었습니다.', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addStockModal')).hide();
+            loadDashboardData();
+        } catch (error) {
+            console.error('주식 추가 오류:', error);
+        }
+    }
+
+    // 거래 추가
+    async function addTransaction() {
+        const form = document.getElementById('addTransactionForm');
+        const formData = {
+            stock_id: parseInt(document.getElementById('transactionStock').value),
+            type: document.getElementById('transactionType').value,
+            quantity: parseInt(document.getElementById('transactionQuantity').value),
+            price: parseFloat(document.getElementById('transactionPrice').value),
+            date: document.getElementById('transactionDate').value
+        };
+
+        try {
+            await apiCall('/api/transactions', {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showAlert('거래가 성공적으로 기록되었습니다.', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+            loadDashboardData();
+            loadRecentTransactions();
+        } catch (error) {
+            console.error('거래 추가 오류:', error);
+        }
+    }
+
+    // 포트폴리오 보기
+    function showPortfolio() {
+        window.location.href = '/portfolio';
+    }
+
+    // 거래 내역 보기
+    function showTransactions() {
+        window.location.href = '/transactions';
+    }
+
+    // 데이터 내보내기
+    function exportData() {
+        showAlert('데이터 내보내기 기능은 준비 중입니다.', 'info');
+    }
+
+    // 거래 날짜 기본값 설정
+    function setupTransactionDate() {
+        const dateInput = document.getElementById('transactionDate');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+    }
+</script>
+{% endblock %}
