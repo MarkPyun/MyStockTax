@@ -100,6 +100,30 @@
             opacity: 0.8;
         }
 
+        /* 활성 메뉴 스타일 */
+        .navbar-nav .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: #3498db !important;
+            font-weight: bold;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+
         /* 모바일 최적화 */
         @media (max-width: 768px) {
             .container {
@@ -124,6 +148,11 @@
             
             .navbar-nav {
                 text-align: center;
+            }
+            
+            .navbar-nav .nav-link.active::after {
+                width: 60%;
+                height: 2px;
             }
         }
 
@@ -340,17 +369,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('stock_analysis') }}">
+                        <a class="nav-link {% if request.endpoint == 'index' or request.endpoint == 'stock_analysis' %}active{% endif %}" href="{{ url_for('stock_analysis') }}">
                             <i class="fas fa-chart-line me-1"></i>Stock 분석
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('tax_analysis') }}">
+                        <a class="nav-link {% if request.endpoint == 'tax_analysis' %}active{% endif %}" href="{{ url_for('tax_analysis') }}">
                             <i class="fas fa-calculator me-1"></i>Tax 분석
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('economy_trade') }}">
+                        <a class="nav-link {% if request.endpoint == 'economy_trade' %}active{% endif %}" href="{{ url_for('economy_trade') }}">
                             <i class="fas fa-globe me-1"></i>Economy & Trade
                         </a>
                     </li>
