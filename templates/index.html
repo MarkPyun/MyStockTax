@@ -3,127 +3,34 @@
 {% block title %}MyStockTax - 홈{% endblock %}
 
 {% block content %}
-<!-- 어두운 테마 홈 화면 (수정된 버전) -->
-<div class="dark-home-container">
-    <!-- 상단 로고 영역 -->
-    <div class="logo-section">
-        <div class="logo-container">
-            <div class="logo-text">
-                <h1>MyStockTax</h1>
-            </div>
-        </div>
-        <div class="active-indicator"></div>
-    </div>
-
-    <!-- 메인 검색 영역 -->
-    <div class="search-section">
-        <div class="search-container">
-            <!-- 기간 선택 드롭다운 -->
-            <div class="period-dropdown">
-                <select class="period-select" id="periodSelect">
-                    <option value="5">5년</option>
-                    <option value="10">10년</option>
-                </select>
-            </div>
-            
-            <!-- 메인 검색 바 -->
-            <div class="main-search-bar">
-                <input type="text" class="search-input" placeholder="종목명, 종목코드, 키워드를 입력하세요..." id="mainSearchInput">
-                <div class="search-controls">
-                    <button class="clear-btn" onclick="clearSearch()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <button class="search-btn" onclick="performSearch()">
-                        <i class="fas fa-search"></i>
-                    </button>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="card-title mb-4" style="color: #3498db; font-weight: bold;">MyStockTax</h2>
+                    
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <!-- 기간 선택 드롭다운 -->
+                        <div class="me-2">
+                            <select class="form-select" id="periodSelect" style="width: 80px;">
+                                <option value="5">5년</option>
+                                <option value="10">10년</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 메인 검색 바 -->
+                        <div class="input-group flex-grow-1">
+                            <input type="text" class="form-control" placeholder="종목명, 종목코드, 키워드를 입력하세요..." id="mainSearchInput">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- 주식 추가 모달 -->
-<div class="modal fade" id="addStockModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-plus me-2"></i>새 주식 추가
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addStockForm">
-                    <div class="mb-3">
-                        <label for="stockName" class="form-label">종목명</label>
-                        <input type="text" class="form-control" id="stockName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockSymbol" class="form-label">종목 코드</label>
-                        <input type="text" class="form-control" id="stockSymbol" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockQuantity" class="form-label">보유 수량</label>
-                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockPrice" class="form-label">현재 가격</label>
-                        <input type="number" class="form-control" id="stockPrice" min="0" step="0.01" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="addStock()">추가</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 거래 추가 모달 -->
-<div class="modal fade" id="addTransactionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-exchange-alt me-2"></i>거래 기록 추가
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addTransactionForm">
-                    <div class="mb-3">
-                        <label for="transactionStock" class="form-label">종목 선택</label>
-                        <select class="form-select" id="transactionStock" required>
-                            <option value="">종목을 선택하세요</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionType" class="form-label">거래 유형</label>
-                        <select class="form-select" id="transactionType" required>
-                            <option value="">선택하세요</option>
-                            <option value="buy">매수</option>
-                            <option value="sell">매도</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionQuantity" class="form-label">수량</label>
-                        <input type="number" class="form-control" id="transactionQuantity" min="1" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionPrice" class="form-label">가격</label>
-                        <input type="number" class="form-control" id="transactionPrice" min="0" step="0.01" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionDate" class="form-label">거래 날짜</label>
-                        <input type="date" class="form-control" id="transactionDate" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="addTransaction()">추가</button>
             </div>
         </div>
     </div>
@@ -134,7 +41,6 @@
 <script>
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        setupTransactionDate();
         // 5년이 기본값으로 설정
         document.getElementById('periodSelect').value = '5';
     });
@@ -180,13 +86,5 @@
             });
         }
     });
-
-    // 거래 날짜 기본값 설정
-    function setupTransactionDate() {
-        const dateInput = document.getElementById('transactionDate');
-        if (dateInput) {
-            dateInput.value = new Date().toISOString().split('T')[0];
-        }
-    }
 </script>
 {% endblock %}
