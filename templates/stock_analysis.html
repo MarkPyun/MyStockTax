@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+
+{% block title %}MyStockTax - Stock 분석{% endblock %}
+
+{% block content %}
+<!-- Stock 분석 헤더 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>Stock 분석
+                </h2>
+                <p class="card-text text-muted">포트폴리오 분석 및 주식 성과 추적</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 포트폴리오 요약 -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-wallet"></i>
+                <h4 class="mt-2" id="total-portfolio-value">-</h4>
+                <p class="mb-0">총 포트폴리오 가치</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
+            <div class="card-body text-center">
+                <i class="fas fa-trending-up"></i>
+                <h4 class="mt-2" id="total-return">-</h4>
+                <p class="mb-0">총 수익률</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
+            <div class="card-body text-center">
+                <i class="fas fa-coins"></i>
+                <h4 class="mt-2" id="total-profit">-</h4>
+                <p class="mb-0">총 수익</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-pie"></i>
+                <h4 class="mt-2" id="diversification-score">-</h4>
+                <p class="mb-0">분산투자 점수</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 주식 포트폴리오 테이블 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-briefcase me-2"></i>포트폴리오 구성
+                </h5>
+                <button class="btn btn-sm btn-primary" onclick="showAddStockModal()">
+                    <i class="fas fa-plus me-1"></i>주식 추가
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>종목명</th>
+                                <th>보유수량</th>
+                                <th>현재가</th>
+                                <th>평균단가</th>
+                                <th>총투자금</th>
+                                <th>현재가치</th>
+                                <th>수익률</th>
+                                <th>비중</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 성과 분석 차트 영역 -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>섹터별 분산
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="sector-chart" style="height: 300px;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                        <p>차트 데이터 준비 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>수익률 추이
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="performance-chart" style="height: 300px;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>차트 데이터 준비 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 주식 추가 모달 -->
+<div class="modal fade" id="addStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>새 주식 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStockForm">
+                    <div class="mb-3">
+                        <label for="stockName" class="form-label">종목명</label>
+                        <input type="text" class="form-control" id="stockName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockSymbol" class="form-label">종목 코드</label>
+                        <input type="text" class="form-control" id="stockSymbol" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockQuantity" class="form-label">보유 수량</label>
+                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockPrice" class="form-label">현재 가격</label>
+                        <input type="number" class="form-control" id="stockPrice" min="0" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockSector" class="form-label">섹터</label>
+                        <select class="form-select" id="stockSector">
+                            <option value="기술">기술</option>
+                            <option value="금융">금융</option>
+                            <option value="의료">의료</option>
+                            <option value="소비재">소비재</option>
+                            <option value="에너지">에너지</option>
+                            <option value="산업">산업</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addStock()">추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        loadPortfolioData();
+        loadPortfolioTable();
+    });
+
+    // 포트폴리오 데이터 로드
+    async function loadPortfolioData() {
+        try {
+            const summary = await apiCall('/api/portfolio/summary');
+            const stocks = await apiCall('/api/stocks');
+            
+            // 총 포트폴리오 가치
+            document.getElementById('total-portfolio-value').textContent = formatCurrency(summary.total_value);
+            
+            // 총 수익
+            document.getElementById('total-profit').textContent = formatCurrency(summary.total_profit);
+            
+            // 총 수익률 계산
+            const totalReturn = summary.total_value > 0 ? (summary.total_profit / (summary.total_value - summary.total_profit)) * 100 : 0;
+            document.getElementById('total-return').textContent = totalReturn.toFixed(2) + '%';
+            
+            // 분산투자 점수 (간단한 계산)
+            const diversificationScore = Math.min(stocks.length * 10, 100);
+            document.getElementById('diversification-score').textContent = diversificationScore + '/100';
+            
+            // 수익률 색상 변경
+            const returnElement = document.getElementById('total-return');
+            if (totalReturn >= 0) {
+                returnElement.style.color = '#27ae60';
+            } else {
+                returnElement.style.color = '#e74c3c';
+            }
+            
+        } catch (error) {
+            console.error('포트폴리오 데이터 로드 오류:', error);
+        }
+    }
+
+    // 포트폴리오 테이블 로드
+    async function loadPortfolioTable() {
+        try {
+            const stocks = await apiCall('/api/stocks');
+            const transactions = await apiCall('/api/transactions');
+            
+            const tbody = document.querySelector('#portfolio-table tbody');
+            
+            if (stocks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">
+                            <i class="fas fa-inbox me-2"></i>보유 주식이 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let totalValue = 0;
+            stocks.forEach(stock => {
+                totalValue += stock.quantity * stock.price;
+            });
+            
+            tbody.innerHTML = stocks.map(stock => {
+                const currentValue = stock.quantity * stock.price;
+                const weight = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
+                
+                // 평균 단가 계산 (간단한 로직)
+                const avgPrice = stock.price; // 실제로는 거래 내역에서 계산해야 함
+                const profitRate = avgPrice > 0 ? ((stock.price - avgPrice) / avgPrice) * 100 : 0;
+                
+                const profitRateClass = profitRate >= 0 ? 'text-success' : 'text-danger';
+                const profitRateIcon = profitRate >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                
+                return `
+                    <tr>
+                        <td>
+                            <strong>${stock.name}</strong><br>
+                            <small class="text-muted">${stock.symbol}</small>
+                        </td>
+                        <td>${formatNumber(stock.quantity)}주</td>
+                        <td>${formatCurrency(stock.price)}</td>
+                        <td>${formatCurrency(avgPrice)}</td>
+                        <td>${formatCurrency(stock.quantity * avgPrice)}</td>
+                        <td>${formatCurrency(currentValue)}</td>
+                        <td class="${profitRateClass}">
+                            <i class="fas ${profitRateIcon} me-1"></i>
+                            ${profitRate.toFixed(2)}%
+                        </td>
+                        <td>${weight.toFixed(1)}%</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="editStock(${stock.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteStock(${stock.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+        } catch (error) {
+            console.error('포트폴리오 테이블 로드 오류:', error);
+        }
+    }
+
+    // 주식 추가 모달 표시
+    function showAddStockModal() {
+        const modal = new bootstrap.Modal(document.getElementById('addStockModal'));
+        modal.show();
+    }
+
+    // 주식 추가
+    async function addStock() {
+        const form = document.getElementById('addStockForm');
+        const formData = {
+            name: document.getElementById('stockName').value,
+            symbol: document.getElementById('stockSymbol').value,
+            quantity: parseInt(document.getElementById('stockQuantity').value),
+            price: parseFloat(document.getElementById('stockPrice').value),
+            sector: document.getElementById('stockSector').value
+        };
+
+        try {
+            await apiCall('/api/stocks', {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            showAlert('주식이 성공적으로 추가되었습니다.', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addStockModal')).hide();
+            loadPortfolioData();
+            loadPortfolioTable();
+        } catch (error) {
+            console.error('주식 추가 오류:', error);
+        }
+    }
+
+    // 주식 수정
+    function editStock(stockId) {
+        showAlert('주식 수정 기능은 준비 중입니다.', 'info');
+    }
+
+    // 주식 삭제
+    async function deleteStock(stockId) {
+        if (confirm('정말로 이 주식을 삭제하시겠습니까?')) {
+            try {
+                await apiCall(`/api/stocks/${stockId}`, {
+                    method: 'DELETE'
+                });
+                
+                showAlert('주식이 삭제되었습니다.', 'success');
+                loadPortfolioData();
+                loadPortfolioTable();
+            } catch (error) {
+                console.error('주식 삭제 오류:', error);
+            }
+        }
+    }
+</script>
+{% endblock %}

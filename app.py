@@ -27,6 +27,21 @@ def index():
     """메인 페이지"""
     return render_template('index.html')
 
+@app.route('/stock-analysis')
+def stock_analysis():
+    """Stock 분석 페이지"""
+    return render_template('stock_analysis.html')
+
+@app.route('/tax-analysis')
+def tax_analysis():
+    """Tax 분석 페이지"""
+    return render_template('tax_analysis.html')
+
+@app.route('/economy-trade')
+def economy_trade():
+    """Economy & Trade 페이지"""
+    return render_template('economy_trade.html')
+
 @app.route('/api/stocks', methods=['GET'])
 def get_stocks():
     """주식 목록 조회"""
