@@ -10,7 +10,7 @@
                 <div class="card-body text-center">
                     <h2 class="card-title mb-4" style="color: #3498db; font-weight: bold;">MyStockTax</h2>
                     
-                    <div class="d-flex justify-content-center align-items-center mb-3">
+                    <div class="d-flex justify-content-center align-items-start mb-3">
                         <!-- 기간 선택 드롭다운 -->
                         <div class="me-3">
                             <select class="form-select" id="periodSelect" style="width: 80px;">
@@ -19,19 +19,22 @@
                             </select>
                         </div>
                         
-                        <!-- 메인 검색 바 -->
-                        <div class="input-group" style="min-width: 400px; max-width: 600px;">
-                            <input type="text" class="form-control" placeholder="주식 티커(미국) 나 코드(대한민국)을 입력해주세요" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
-                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            <button class="btn btn-primary" type="button" onclick="performSearch()">
-                                <i class="fas fa-search"></i>
-                            </button>
+                        <!-- 검색 영역 컨테이너 -->
+                        <div style="min-width: 400px; max-width: 600px;">
+                            <!-- 메인 검색 바 -->
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="주식 티커(미국) 나 코드(대한민국)을 입력해주세요" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- 에러 메시지 영역 - 입력 필드 바로 아래 -->
+                            <div id="errorMessage" class="text-danger mt-1" style="font-size: 12px; display: none; text-align: left; padding-left: 12px;"></div>
                         </div>
-                        
-                        <!-- 에러 메시지 영역 - 입력 필드와 같은 위치에서 시작 -->
-                        <div id="errorMessage" class="text-danger mt-1" style="font-size: 12px; display: none; margin-left: 0; text-align: left;"></div>
                     </div>
                 </div>
             </div>
