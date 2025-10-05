@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 from flask_cors import CORS
 import json
 import os
@@ -41,6 +41,11 @@ def tax_analysis():
 def economy_trade():
     """Economy & Trade 페이지"""
     return render_template('economy_trade.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    """파비콘 서빙"""
+    return send_from_directory(os.path.join(app.root_path, 'static', 'images'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/stocks', methods=['GET'])
 def get_stocks():
