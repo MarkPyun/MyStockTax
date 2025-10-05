@@ -3,442 +3,97 @@
 {% block title %}MyStockTax - Tax 분석{% endblock %}
 
 {% block content %}
+<!-- TAX 분석 메인 화면 -->
+<div class="tax-analysis-container">
+    <!-- 상단 로고 영역 -->
+    <div class="logo-section">
+        <div class="logo-container">
+            <div class="logo-text">
+                <h1>MyStockTax</h1>
+            </div>
+        </div>
+        <div class="active-indicator"></div>
+    </div>
 
-<!-- 세금 요약 카드 -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card">
-            <div class="card-body text-center">
-                <i class="fas fa-receipt"></i>
-                <h4 class="mt-2" id="total-capital-gains">-</h4>
-                <p class="mb-0">총 양도소득</p>
+    <!-- 메인 검색 영역 -->
+    <div class="search-section">
+        <div class="search-container">
+            <!-- 기간 선택 드롭다운 -->
+            <div class="period-dropdown">
+                <select class="period-select" id="periodSelect">
+                    <option value="5">5년</option>
+                    <option value="10">10년</option>
+                </select>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
-            <div class="card-body text-center">
-                <i class="fas fa-percentage"></i>
-                <h4 class="mt-2" id="tax-rate">-</h4>
-                <p class="mb-0">적용 세율</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
-            <div class="card-body text-center">
-                <i class="fas fa-money-bill-wave"></i>
-                <h4 class="mt-2" id="estimated-tax">-</h4>
-                <p class="mb-0">예상 세금</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
-            <div class="card-body text-center">
-                <i class="fas fa-chart-bar"></i>
-                <h4 class="mt-2" id="tax-efficiency">-</h4>
-                <p class="mb-0">세무 효율성</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 세금 계산기 -->
-<div class="row mb-4">
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-calculator me-2"></i>세금 계산기
-                </h5>
-            </div>
-            <div class="card-body">
-                <form id="taxCalculatorForm">
-                    <div class="mb-3">
-                        <label for="income" class="form-label">연간 소득 (만원)</label>
-                        <input type="number" class="form-control" id="income" min="0" step="100" placeholder="5000">
-                    </div>
-                    <div class="mb-3">
-                        <label for="capitalGains" class="form-label">양도소득 (만원)</label>
-                        <input type="number" class="form-control" id="capitalGains" min="0" step="100" placeholder="1000">
-                    </div>
-                    <div class="mb-3">
-                        <label for="holdingPeriod" class="form-label">보유기간</label>
-                        <select class="form-select" id="holdingPeriod">
-                            <option value="short">1년 미만 (단기)</option>
-                            <option value="long">1년 이상 (장기)</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="deductions" class="form-label">공제액 (만원)</label>
-                        <input type="number" class="form-control" id="deductions" min="0" step="100" placeholder="250">
-                    </div>
-                    <button type="button" class="btn btn-primary w-100" onclick="calculateTax()">
-                        <i class="fas fa-calculator me-2"></i>세금 계산
+            
+            <!-- 메인 검색 바 -->
+            <div class="main-search-bar">
+                <input type="text" class="search-input" placeholder="종목명, 종목코드, 키워드를 입력하세요..." id="mainSearchInput">
+                <div class="search-controls">
+                    <button class="clear-btn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i>
                     </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>세금 분석 결과
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="tax-results">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-calculator fa-3x mb-3"></i>
-                        <p>세금을 계산해보세요</p>
-                    </div>
+                    <button class="search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 거래별 세금 내역 -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-file-invoice me-2"></i>거래별 세금 내역
-                </h5>
-                <button class="btn btn-sm btn-success" onclick="showAddTransactionModal()">
-                    <i class="fas fa-plus me-1"></i>거래 추가
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="tax-transactions-table">
-                        <thead>
-                            <tr>
-                                <th>거래일</th>
-                                <th>종목</th>
-                                <th>거래유형</th>
-                                <th>수량</th>
-                                <th>단가</th>
-                                <th>거래금액</th>
-                                <th>보유기간</th>
-                                <th>양도소득</th>
-                                <th>세금</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">
-                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 세무 최적화 팁 -->
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightbulb me-2"></i>세무 최적화 팁
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item">
-                        <h6 class="mb-1">
-                            <i class="fas fa-clock text-primary me-2"></i>장기 보유 전략
-                        </h6>
-                        <p class="mb-0 small">1년 이상 보유 시 세율 혜택을 받을 수 있습니다.</p>
-                    </div>
-                    <div class="list-group-item">
-                        <h6 class="mb-1">
-                            <i class="fas fa-balance-scale text-success me-2"></i>손실 실현
-                        </h6>
-                        <p class="mb-0 small">손실 거래로 이익을 상쇄하여 세금을 줄일 수 있습니다.</p>
-                    </div>
-                    <div class="list-group-item">
-                        <h6 class="mb-1">
-                            <i class="fas fa-calendar text-warning me-2"></i>연말 세무 계획
-                        </h6>
-                        <p class="mb-0 small">12월 말까지 세무 계획을 세워 효율적인 절세를 하세요.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>세금 추이
-                </h5>
-            </div>
-            <div class="card-body">
-                <div id="tax-trend-chart" style="height: 300px;">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                        <p>세금 추이 차트 준비 중...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 거래 추가 모달 -->
-<div class="modal fade" id="addTransactionModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-exchange-alt me-2"></i>거래 기록 추가
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addTransactionForm">
-                    <div class="mb-3">
-                        <label for="transactionStock" class="form-label">종목 선택</label>
-                        <select class="form-select" id="transactionStock" required>
-                            <option value="">종목을 선택하세요</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionType" class="form-label">거래 유형</label>
-                        <select class="form-select" id="transactionType" required>
-                            <option value="">선택하세요</option>
-                            <option value="buy">매수</option>
-                            <option value="sell">매도</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionQuantity" class="form-label">수량</label>
-                        <input type="number" class="form-control" id="transactionQuantity" min="1" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionPrice" class="form-label">가격</label>
-                        <input type="number" class="form-control" id="transactionPrice" min="0" step="0.01" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="transactionDate" class="form-label">거래 날짜</label>
-                        <input type="date" class="form-control" id="transactionDate" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="addTransaction()">추가</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        loadTaxData();
-        loadTaxTransactions();
         setupTransactionDate();
+        // 5년이 기본값으로 설정
+        document.getElementById('periodSelect').value = '5';
     });
 
-    // 세금 데이터 로드
-    async function loadTaxData() {
-        try {
-            const transactions = await apiCall('/api/transactions');
-            const stocks = await apiCall('/api/stocks');
-            
-            // 양도소득 계산 (매도 거래만)
-            const sellTransactions = transactions.filter(t => t.type === 'sell');
-            let totalCapitalGains = 0;
-            
-            sellTransactions.forEach(transaction => {
-                const stock = stocks.find(s => s.id === transaction.stock_id);
-                if (stock) {
-                    // 간단한 양도소득 계산 (실제로는 더 복잡한 로직 필요)
-                    const capitalGain = (transaction.price - stock.price) * transaction.quantity;
-                    totalCapitalGains += capitalGain;
+    // 검색 기능
+    function performSearch() {
+        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const period = document.getElementById('periodSelect').value;
+        
+        if (searchTerm) {
+            showAlert(`"${searchTerm}" 검색 결과를 준비 중입니다. (${period}년 기준)`, 'info');
+            // 실제 검색 로직 구현 예정
+        } else {
+            showAlert('검색어를 입력해주세요.', 'warning');
+        }
+    }
+
+    // 검색어 지우기
+    function clearSearch() {
+        document.getElementById('mainSearchInput').value = '';
+        document.getElementById('mainSearchInput').focus();
+    }
+
+    // 엔터키로 검색
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('mainSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
                 }
             });
-            
-            // 세금 계산
-            const taxRate = 0.22; // 22% (실제로는 소득에 따라 다름)
-            const estimatedTax = totalCapitalGains * taxRate;
-            
-            document.getElementById('total-capital-gains').textContent = formatCurrency(totalCapitalGains);
-            document.getElementById('tax-rate').textContent = (taxRate * 100) + '%';
-            document.getElementById('estimated-tax').textContent = formatCurrency(estimatedTax);
-            document.getElementById('tax-efficiency').textContent = 'B+';
-            
-        } catch (error) {
-            console.error('세금 데이터 로드 오류:', error);
         }
-    }
+    });
 
-    // 세금 거래 내역 로드
-    async function loadTaxTransactions() {
-        try {
-            const transactions = await apiCall('/api/transactions');
-            const stocks = await apiCall('/api/stocks');
-            
-            const tbody = document.querySelector('#tax-transactions-table tbody');
-            
-            if (transactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="text-center text-muted">
-                            <i class="fas fa-inbox me-2"></i>거래 내역이 없습니다.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = transactions.map(transaction => {
-                const stock = stocks.find(s => s.id === transaction.stock_id);
-                const stockName = stock ? stock.name : '알 수 없음';
-                const totalAmount = transaction.quantity * transaction.price;
-                const typeClass = transaction.type === 'buy' ? 'text-success' : 'text-danger';
-                const typeText = transaction.type === 'buy' ? '매수' : '매도';
-                
-                // 간단한 양도소득 계산
-                const capitalGain = transaction.type === 'sell' ? 
-                    (transaction.price - (stock ? stock.price : 0)) * transaction.quantity : 0;
-                const tax = capitalGain * 0.22;
-                
-                return `
-                    <tr>
-                        <td>${new Date(transaction.date).toLocaleDateString('ko-KR')}</td>
-                        <td>${stockName}</td>
-                        <td><span class="${typeClass}">${typeText}</span></td>
-                        <td>${formatNumber(transaction.quantity)}주</td>
-                        <td>${formatCurrency(transaction.price)}</td>
-                        <td>${formatCurrency(totalAmount)}</td>
-                        <td>1년 미만</td>
-                        <td>${formatCurrency(capitalGain)}</td>
-                        <td>${formatCurrency(tax)}</td>
-                    </tr>
-                `;
-            }).join('');
-            
-        } catch (error) {
-            console.error('세금 거래 내역 로드 오류:', error);
-        }
-    }
-
-    // 세금 계산기
-    function calculateTax() {
-        const income = parseFloat(document.getElementById('income').value) || 0;
-        const capitalGains = parseFloat(document.getElementById('capitalGains').value) || 0;
-        const holdingPeriod = document.getElementById('holdingPeriod').value;
-        const deductions = parseFloat(document.getElementById('deductions').value) || 0;
-        
-        // 세율 계산 (간단한 로직)
-        let taxRate = 0.22; // 기본 22%
-        if (holdingPeriod === 'long') {
-            taxRate = 0.11; // 장기 보유 시 11%
-        }
-        
-        // 공제 후 과세표준
-        const taxableAmount = Math.max(0, capitalGains - deductions);
-        const tax = taxableAmount * taxRate;
-        const netGains = capitalGains - tax;
-        
-        // 결과 표시
-        const resultsDiv = document.getElementById('tax-results');
-        resultsDiv.innerHTML = `
-            <div class="row">
-                <div class="col-6">
-                    <div class="text-center">
-                        <h6 class="text-muted">과세표준</h6>
-                        <h4 class="text-primary">${formatCurrency(taxableAmount * 10000)}</h4>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="text-center">
-                        <h6 class="text-muted">세율</h6>
-                        <h4 class="text-info">${(taxRate * 100).toFixed(1)}%</h4>
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-6">
-                    <div class="text-center">
-                        <h6 class="text-muted">예상 세금</h6>
-                        <h4 class="text-danger">${formatCurrency(tax * 10000)}</h4>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="text-center">
-                        <h6 class="text-muted">순수익</h6>
-                        <h4 class="text-success">${formatCurrency(netGains * 10000)}</h4>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // 거래 추가 모달 표시
-    function showAddTransactionModal() {
-        loadStocksForTransaction();
-        const modal = new bootstrap.Modal(document.getElementById('addTransactionModal'));
-        modal.show();
-    }
-
-    // 거래용 종목 목록 로드
-    async function loadStocksForTransaction() {
-        try {
-            const stocks = await apiCall('/api/stocks');
-            const select = document.getElementById('transactionStock');
-            
-            select.innerHTML = '<option value="">종목을 선택하세요</option>';
-            stocks.forEach(stock => {
-                select.innerHTML += `<option value="${stock.id}">${stock.name} (${stock.symbol})</option>`;
+    // 기간 변경 이벤트
+    document.addEventListener('DOMContentLoaded', function() {
+        const periodSelect = document.getElementById('periodSelect');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', function() {
+                const period = this.value;
+                showAlert(`${period}년 기준으로 검색이 설정되었습니다.`, 'info');
             });
-        } catch (error) {
-            console.error('종목 목록 로드 오류:', error);
         }
-    }
-
-    // 거래 추가
-    async function addTransaction() {
-        const form = document.getElementById('addTransactionForm');
-        const formData = {
-            stock_id: parseInt(document.getElementById('transactionStock').value),
-            type: document.getElementById('transactionType').value,
-            quantity: parseInt(document.getElementById('transactionQuantity').value),
-            price: parseFloat(document.getElementById('transactionPrice').value),
-            date: document.getElementById('transactionDate').value
-        };
-
-        try {
-            await apiCall('/api/transactions', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            });
-
-            showAlert('거래가 성공적으로 기록되었습니다.', 'success');
-            form.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-            loadTaxData();
-            loadTaxTransactions();
-        } catch (error) {
-            console.error('거래 추가 오류:', error);
-        }
-    }
+    });
 
     // 거래 날짜 기본값 설정
     function setupTransactionDate() {
