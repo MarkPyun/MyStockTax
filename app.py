@@ -29,8 +29,8 @@ def index():
 
 @app.route('/stock-analysis')
 def stock_analysis():
-    """Stock 분석 페이지"""
-    return render_template('stock_analysis.html')
+    """Stock 분석 페이지 - 홈과 동일"""
+    return render_template('index.html')
 
 @app.route('/tax-analysis')
 def tax_analysis():
