@@ -29,6 +29,9 @@
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
+                        
+                        <!-- 에러 메시지 영역 -->
+                        <div id="errorMessage" class="text-danger mt-2" style="font-size: 12px; display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -59,12 +62,17 @@
     function performSearch() {
         const searchTerm = document.getElementById('mainSearchInput').value.trim();
         const period = document.getElementById('periodSelect').value;
+        const errorMessage = document.getElementById('errorMessage');
         
         if (searchTerm) {
+            // 에러 메시지 숨기기
+            errorMessage.style.display = 'none';
             showAlert(`"${searchTerm}" 검색 결과를 준비 중입니다. (${period}년 기준)`, 'info');
             // 실제 검색 로직 구현 예정
         } else {
-            showAlert('정보를 입력해주세요!', 'warning');
+            // 에러 메시지 표시
+            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.style.display = 'block';
         }
     }
 
@@ -76,6 +84,10 @@
         
         // 기간 선택 초기화 (5년으로)
         document.getElementById('periodSelect').value = '5';
+        
+        // 에러 메시지 숨기기
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
         
         // 에러 메시지 제거
         const alerts = document.querySelectorAll('.alert');
