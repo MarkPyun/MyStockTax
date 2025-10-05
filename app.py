@@ -24,8 +24,8 @@ def save_data(data):
 
 @app.route('/')
 def index():
-    """메인 페이지"""
-    return render_template('index.html')
+    """메인 페이지 - Stock 분석과 동일"""
+    return render_template('stock_analysis.html')
 
 @app.route('/stock-analysis')
 def stock_analysis():
