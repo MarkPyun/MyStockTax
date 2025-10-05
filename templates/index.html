@@ -70,8 +70,20 @@
 
     // 검색어 지우기
     function clearSearch() {
+        // 입력 필드 초기화
         document.getElementById('mainSearchInput').value = '';
         document.getElementById('mainSearchInput').focus();
+        
+        // 기간 선택 초기화 (5년으로)
+        document.getElementById('periodSelect').value = '5';
+        
+        // 에러 메시지 제거
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => alert.remove());
+        
+        // 기존 알림 제거
+        const existingAlerts = document.querySelectorAll('.alert-dismissible');
+        existingAlerts.forEach(alert => alert.remove());
     }
 
     // 엔터키로 검색
