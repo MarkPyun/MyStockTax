@@ -87,16 +87,8 @@
                     
                     <div class="search-container">
                         <div class="search-wrapper">
-                            <!-- 기간 선택 드롭다운 -->
-                            <div class="period-select-wrapper">
-                                <select class="form-select" id="periodSelect" style="width: 100px; font-size: 16px;">
-                                    <option value="5">5년</option>
-                                    <option value="10">10년</option>
-                                </select>
-                            </div>
-                            
-                            <!-- 검색 영역 -->
-                            <div class="search-input-wrapper">
+                            <!-- 검색 영역 (기간 선택 제거) -->
+                            <div class="search-input-wrapper" style="width: 100%;">
                                 <!-- 메인 검색 바 -->
                                 <div class="input-group input-group-lg">
                                     <input type="text" class="form-control" placeholder="주식 코드 (한국: 005930, 000660 / 미국: AAPL, MSFT)" id="mainSearchInput" style="font-size: 16px;" maxlength="50">
@@ -185,7 +177,6 @@
     // 검색 기능
     async function performSearch() {
         const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = document.getElementById('periodSelect').value;
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
@@ -198,10 +189,10 @@
         errorMessage.style.display = 'none';
         
         // 로딩 표시
-        showAlert(`"${searchTerm}" 검색 결과를 준비 중입니다. (${period}년 기준)`, 'info');
+        showAlert(`"${searchTerm}" 검색 결과를 준비 중입니다. (최근 4년 분기별 데이터)`, 'info');
         
         try {
-            // API 호출
+            // API 호출 (기간 고정: 4년)
             const response = await fetch('/api/stock/analysis', {
                 method: 'POST',
                 headers: {
@@ -209,7 +200,7 @@
                 },
                 body: JSON.stringify({
                     symbol: searchTerm,
-                    period: parseInt(period)
+                    period: 4  // 고정: 4년
                 })
             });
             
@@ -361,8 +352,7 @@
         document.getElementById('mainSearchInput').value = '';
         document.getElementById('mainSearchInput').focus();
         
-        // 기간 선택 초기화 (5년으로)
-        document.getElementById('periodSelect').value = '5';
+        // 기간 선택 제거됨 (4년 고정)
         
         // 에러 메시지 숨기기
         const errorMessage = document.getElementById('errorMessage');
@@ -393,15 +383,6 @@
         }
     });
 
-    // 기간 변경 이벤트
-    document.addEventListener('DOMContentLoaded', function() {
-        const periodSelect = document.getElementById('periodSelect');
-        if (periodSelect) {
-            periodSelect.addEventListener('change', function() {
-                const period = this.value;
-                showAlert(`${period}년 기준으로 검색이 설정되었습니다.`, 'info');
-            });
-        }
-    });
+    // 기간 변경 이벤트 제거됨 (4년 고정)
 </script>
 {% endblock %}

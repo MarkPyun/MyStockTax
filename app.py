@@ -2499,11 +2499,18 @@ def get_stock_analysis_data(symbol, period):
 
 def get_stock_basic_info(symbol):
     """주식 기본 정보 조회"""
+    import time
+    import random
+    
     try:
         # yfinance를 사용한 주식 기본 정보 조회
         import yfinance as yf
         
         print(f"📊 주식 정보 조회 시작: {symbol}")
+        
+        # Rate limiting 방지를 위한 지연
+        time.sleep(random.uniform(1, 3))
+        
         stock = yf.Ticker(symbol)
         
         # info 속성 접근 시도
@@ -7424,4 +7431,5 @@ if __name__ == '__main__':
     check_and_create_tables()
     # Render는 PORT 환경 변수를 제공합니다
     port = int(os.getenv('PORT', 5000))
+    print(f"🚀 서버 시작: 포트 {port}")
     app.run(debug=True, host='0.0.0.0', port=port)
