@@ -1,344 +1,291 @@
 {% extends "base.html" %}
 
-{% block title %}MyStockTax - Stock 분석{% endblock %}
-
 {% block content %}
-
-<!-- 포트폴리오 요약 -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card">
-            <div class="card-body text-center">
-                <i class="fas fa-wallet"></i>
-                <h4 class="mt-2" id="total-portfolio-value">-</h4>
-                <p class="mb-0">총 포트폴리오 가치</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
-            <div class="card-body text-center">
-                <i class="fas fa-trending-up"></i>
-                <h4 class="mt-2" id="total-return">-</h4>
-                <p class="mb-0">총 수익률</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
-            <div class="card-body text-center">
-                <i class="fas fa-coins"></i>
-                <h4 class="mt-2" id="total-profit">-</h4>
-                <p class="mb-0">총 수익</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
-            <div class="card-body text-center">
-                <i class="fas fa-chart-pie"></i>
-                <h4 class="mt-2" id="diversification-score">-</h4>
-                <p class="mb-0">분산투자 점수</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 주식 포트폴리오 테이블 -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-briefcase me-2"></i>포트폴리오 구성
-                </h5>
-                <button class="btn btn-sm btn-primary" onclick="showAddStockModal()">
-                    <i class="fas fa-plus me-1"></i>주식 추가
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="portfolio-table">
-                        <thead>
-                            <tr>
-                                <th>종목명</th>
-                                <th>보유수량</th>
-                                <th>현재가</th>
-                                <th>평균단가</th>
-                                <th>총매입금액</th>
-                                <th>현재가치</th>
-                                <th>수익률</th>
-                                <th>비중</th>
-                                <th>액션</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">
-                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="card-title mb-4" style="color: #3498db; font-weight: bold;">MyStockTax</h2>
+                    
+                    <div class="d-flex justify-content-center align-items-start mb-3">
+                        <!-- 기간 선택 드롭다운 -->
+                        <div class="me-3">
+                            <select class="form-select" id="periodSelect" style="width: 80px;">
+                                <option value="5">5년</option>
+                                <option value="10">10년</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 검색 영역 컨테이너 -->
+                        <div style="min-width: 400px; max-width: 600px;">
+                            <!-- 메인 검색 바 -->
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="주식 코드를 입력하세요 (한국: 005930, 000660 / 미국: AAPL, MSFT)" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- 에러 메시지 영역 - 입력 필드 바로 아래 -->
+                            <div id="errorMessage" class="text-danger mt-1" style="font-size: 12px; display: none; text-align: left; padding-left: 12px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- 섹터 분석 차트 영역 -->
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card">
+    
+    <!-- 검색 결과 영역 -->
+    <div id="searchResults" class="mt-4" style="display: none;">
+        <!-- 주식 기본 정보 -->
+        <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>섹터별 분산
-                </h5>
+                <h5 class="mb-0">주식 기본 정보</h5>
             </div>
             <div class="card-body">
-                <div id="sector-chart" style="height: 300px;">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
-                        <p>차트 데이터 준비중...</p>
-                    </div>
+                <div id="stockInfo" class="row">
+                    <!-- 주식 정보가 여기에 표시됩니다 -->
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6 mb-4">
-        <div class="card">
+        
+        <!-- 주가 차트 -->
+        <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>수익률 추이
-                </h5>
+                <h5 class="mb-0">주가 차트</h5>
             </div>
             <div class="card-body">
-                <div id="performance-chart" style="height: 300px;">
-                    <div class="text-center text-muted">
-                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                        <p>차트 데이터 준비중...</p>
-                    </div>
+                <canvas id="priceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        
+        <!-- 재무 데이터 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">재무 데이터</h5>
+            </div>
+            <div class="card-body">
+                <div id="financialData" class="row">
+                    <!-- 재무 데이터가 여기에 표시됩니다 -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 주식 추가 모달 -->
-<div class="modal fade" id="addStockModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-plus me-2"></i>새 주식 추가
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addStockForm">
-                    <div class="mb-3">
-                        <label for="stockName" class="form-label">종목명</label>
-                        <input type="text" class="form-control" id="stockName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockSymbol" class="form-label">종목 코드</label>
-                        <input type="text" class="form-control" id="stockSymbol" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockQuantity" class="form-label">보유 수량</label>
-                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockPrice" class="form-label">현재 가격</label>
-                        <input type="number" class="form-control" id="stockPrice" min="0" step="0.01" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="stockSector" class="form-label">섹터</label>
-                        <select class="form-select" id="stockSector">
-                            <option value="기술">기술</option>
-                            <option value="금융">금융</option>
-                            <option value="헬스">헬스</option>
-                            <option value="커뮤니">커뮤니</option>
-                            <option value="에너지">에너지</option>
-                            <option value="산업">산업</option>
-                            <option value="기타">기타</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="addStock()">추가</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-{% block extra_js %}
 <script>
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        loadPortfolioData();
-        loadPortfolioTable();
+        // 5년이 기본값으로 설정
+        document.getElementById('periodSelect').value = '5';
+        
+        // 입력 제한 설정
+        const searchInput = document.getElementById('mainSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                if (e.target.value.length > 50) {
+                    e.target.value = e.target.value.substring(0, 50);
+                }
+            });
+        }
     });
 
-    // 포트폴리오 데이터 로드
-    async function loadPortfolioData() {
-        try {
-            const summary = await apiCall('/api/portfolio/summary');
-            const stocks = await apiCall('/api/stocks');
-            
-            // 총 포트폴리오 가치
-            document.getElementById('total-portfolio-value').textContent = formatCurrency(summary.total_value);
-            
-            // 총 수익
-            document.getElementById('total-profit').textContent = formatCurrency(summary.total_profit);
-            
-            // 총 수익률 계산
-            const totalReturn = summary.total_value > 0 ? (summary.total_profit / (summary.total_value - summary.total_profit)) * 100 : 0;
-            document.getElementById('total-return').textContent = totalReturn.toFixed(2) + '%';
-            
-            // 분산투자 점수 (간단한 계산)
-            const diversificationScore = Math.min(stocks.length * 10, 100);
-            document.getElementById('diversification-score').textContent = diversificationScore + '/100';
-            
-            // 수익률 색상 변경
-            const returnElement = document.getElementById('total-return');
-            if (totalReturn >= 0) {
-                returnElement.style.color = '#27ae60';
-            } else {
-                returnElement.style.color = '#e74c3c';
-            }
-            
-        } catch (error) {
-            console.error('포트폴리오 데이터 로드 오류:', error);
+    // 검색 기능
+    async function performSearch() {
+        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const period = document.getElementById('periodSelect').value;
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (!searchTerm) {
+            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.style.display = 'block';
+            return;
         }
-    }
-
-    // 포트폴리오 테이블 로드
-    async function loadPortfolioTable() {
+        
+        // 에러 메시지 숨기기
+        errorMessage.style.display = 'none';
+        
+        // 로딩 표시
+        showAlert(`"${searchTerm}" 검색 결과를 준비중입니다. (${period}년 기준)`, 'info');
+        
         try {
-            const stocks = await apiCall('/api/stocks');
-            const transactions = await apiCall('/api/transactions');
-            
-            const tbody = document.querySelector('#portfolio-table tbody');
-            
-            if (stocks.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="text-center text-muted">
-                            <i class="fas fa-inbox me-2"></i>보유 주식이 없습니다.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let totalValue = 0;
-            stocks.forEach(stock => {
-                totalValue += stock.quantity * stock.price;
-            });
-            
-            tbody.innerHTML = stocks.map(stock => {
-                const currentValue = stock.quantity * stock.price;
-                const weight = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
-                
-                // 평균 단가 계산 (간단한 로직)
-                const avgPrice = stock.price; // 실제로는 거래 히스토리에서 계산해야 함
-                const profitRate = avgPrice > 0 ? ((stock.price - avgPrice) / avgPrice) * 100 : 0;
-                
-                const profitRateClass = profitRate >= 0 ? 'text-success' : 'text-danger';
-                const profitRateIcon = profitRate >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-                
-                return `
-                    <tr>
-                        <td>
-                            <strong>${stock.name}</strong><br>
-                            <small class="text-muted">${stock.symbol}</small>
-                        </td>
-                        <td>${formatNumber(stock.quantity)}주</td>
-                        <td>${formatCurrency(stock.price)}</td>
-                        <td>${formatCurrency(avgPrice)}</td>
-                        <td>${formatCurrency(stock.quantity * avgPrice)}</td>
-                        <td>${formatCurrency(currentValue)}</td>
-                        <td class="${profitRateClass}">
-                            <i class="fas ${profitRateIcon} me-1"></i>
-                            ${profitRate.toFixed(2)}%
-                        </td>
-                        <td>${weight.toFixed(1)}%</td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-primary" onclick="editStock(${stock.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-outline-danger" onclick="deleteStock(${stock.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-        } catch (error) {
-            console.error('포트폴리오 테이블 로드 오류:', error);
-        }
-    }
-
-    // 주식 추가 모달 표시
-    function showAddStockModal() {
-        const modal = new bootstrap.Modal(document.getElementById('addStockModal'));
-        modal.show();
-    }
-
-    // 주식 추가
-    async function addStock() {
-        const form = document.getElementById('addStockForm');
-        const formData = {
-            name: document.getElementById('stockName').value,
-            symbol: document.getElementById('stockSymbol').value,
-            quantity: parseInt(document.getElementById('stockQuantity').value),
-            price: parseFloat(document.getElementById('stockPrice').value),
-            sector: document.getElementById('stockSector').value
-        };
-
-        try {
-            await apiCall('/api/stocks', {
+            // API 요청
+            const response = await fetch('/api/stock/analysis', {
                 method: 'POST',
-                body: JSON.stringify(formData)
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    symbol: searchTerm,
+                    period: parseInt(period)
+                })
             });
-
-            showAlert('주식이 성공적으로 추가되었습니다.', 'success');
-            form.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addStockModal')).hide();
-            loadPortfolioData();
-            loadPortfolioTable();
-        } catch (error) {
-            console.error('주식 추가 오류:', error);
-        }
-    }
-
-    // 주식 수정
-    function editStock(stockId) {
-        showAlert('주식 수정 기능은 준비중입니다.', 'info');
-    }
-
-    // 주식 삭제
-    async function deleteStock(stockId) {
-        if (confirm('정말로 이 주식을 삭제하시겠습니까?')) {
-            try {
-                await apiCall(`/api/stocks/${stockId}`, {
-                    method: 'DELETE'
-                });
-                
-                showAlert('주식이 삭제되었습니다.', 'success');
-                loadPortfolioData();
-                loadPortfolioTable();
-            } catch (error) {
-                console.error('주식 삭제 오류:', error);
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // 검색 결과 표시
+                displaySearchResults(data);
+                showAlert(`"${searchTerm}" 검색이 완료되었습니다.`, 'success');
+            } else {
+                // 에러 메시지 표시
+                errorMessage.textContent = data.error || '검색 중 오류가 발생했습니다.';
+                errorMessage.style.display = 'block';
             }
+            
+        } catch (error) {
+            console.error('검색 오류:', error);
+            errorMessage.textContent = '검색 중 오류가 발생했습니다.';
+            errorMessage.style.display = 'block';
         }
     }
+
+    // 검색 결과 표시
+    function displaySearchResults(data) {
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.style.display = 'block';
+        
+        // 주식 기본 정보 표시
+        displayStockInfo(data.stock_info);
+        
+        // 주가 차트 표시
+        displayPriceChart(data.price_data);
+        
+        // 재무 데이터 표시
+        displayFinancialData(data.financial_data);
+    }
+
+    // 주식 기본 정보 표시
+    function displayStockInfo(stockInfo) {
+        const infoDiv = document.getElementById('stockInfo');
+        infoDiv.innerHTML = `
+            <div class="col-md-6">
+                <h6>회사명</h6>
+                <p>${stockInfo.name}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>섹터</h6>
+                <p>${stockInfo.sector}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>업종</h6>
+                <p>${stockInfo.industry}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>시가총액</h6>
+                <p>${formatNumber(stockInfo.market_cap)}</p>
+            </div>
+        `;
+    }
+
+    // 주가 차트 표시
+    function displayPriceChart(priceData) {
+        if (!priceData || !priceData.dates || !priceData.prices) {
+            return;
+        }
+        
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: priceData.dates,
+                datasets: [{
+                    label: '주가',
+                    data: priceData.prices,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+
+    // 재무 데이터 표시
+    function displayFinancialData(financialData) {
+        if (!financialData || financialData.length === 0) {
+            return;
+        }
+        
+        const financialDiv = document.getElementById('financialData');
+        let html = '<div class="col-12"><h6>연도별 재무 데이터</h6><table class="table table-striped"><thead><tr><th>연도</th><th>매출</th><th>영업이익</th><th>순이익</th></tr></thead><tbody>';
+        
+        financialData.forEach(data => {
+            html += `
+                <tr>
+                    <td>${data.year}</td>
+                    <td>${formatNumber(data.revenue)}</td>
+                    <td>${formatNumber(data.operating_income)}</td>
+                    <td>${formatNumber(data.net_income)}</td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table></div>';
+        financialDiv.innerHTML = html;
+    }
+
+    // 검색어 지우기
+    function clearSearch() {
+        // 입력 필드 초기화
+        document.getElementById('mainSearchInput').value = '';
+        document.getElementById('mainSearchInput').focus();
+        
+        // 기간 선택 초기화 (5년으로)
+        document.getElementById('periodSelect').value = '5';
+        
+        // 에러 메시지 숨기기
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
+        
+        // 검색 결과 숨기기
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.style.display = 'none';
+        
+        // 에러 메시지 제거
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => alert.remove());
+        
+        // 기존 알림 제거
+        const existingAlerts = document.querySelectorAll('.alert-dismissible');
+        existingAlerts.forEach(alert => alert.remove());
+    }
+
+    // 엔터로 검색
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('mainSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+    });
+
+    // 기간 변경 이벤트
+    document.addEventListener('DOMContentLoaded', function() {
+        const periodSelect = document.getElementById('periodSelect');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', function() {
+                const period = this.value;
+                showAlert(`${period}년 기준으로 검색이 설정되었습니다.`, 'info');
+            });
+        }
+    });
 </script>
 {% endblock %}
