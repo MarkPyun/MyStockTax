@@ -3,27 +3,120 @@
 {% block title %}MyStockTax - 홈{% endblock %}
 
 {% block content %}
-<!-- 검색 영역 - 상단 고정 -->
-<div class="container-fluid bg-white shadow-sm py-3" style="position: sticky; top: 0; z-index: 1000;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="d-flex justify-content-center align-items-center">
-                    <!-- 검색 영역 컨테이너 -->
-                    <div style="min-width: 400px; max-width: 600px;">
-                        <!-- 메인 검색 바 -->
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="예: AAPL (미국), 005930 (한국)" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
-                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            <button class="btn btn-primary" type="button" onclick="performSearch()">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                        
-                        <!-- 에러 메시지 영역 - 입력 필드 바로 아래 -->
-                        <div id="errorMessage" class="text-danger mt-1" style="font-size: 12px; display: none; text-align: left; padding-left: 12px;"></div>
+<!-- Stock 분석 페이지 동일한 내용 -->
+<!-- 포트폴리오 요약 -->
+<div class="row mb-4" id="dashboard-stats">
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-wallet"></i>
+                <h4 class="mt-2" id="total-portfolio-value">-</h4>
+                <p class="mb-0">총 포트폴리오 가치</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--success-color), #229954);">
+            <div class="card-body text-center">
+                <i class="fas fa-trending-up"></i>
+                <h4 class="mt-2" id="total-return">-</h4>
+                <p class="mb-0">총 수익률</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--warning-color), #e67e22);">
+            <div class="card-body text-center">
+                <i class="fas fa-coins"></i>
+                <h4 class="mt-2" id="total-profit">-</h4>
+                <p class="mb-0">총 수익</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--danger-color), #c0392b);">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-pie"></i>
+                <h4 class="mt-2" id="diversification-score">-</h4>
+                <p class="mb-0">분산투자 점수</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 주식 포트폴리오 테이블 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-briefcase me-2"></i>포트폴리오 구성
+                </h5>
+                <button class="btn btn-sm btn-primary" onclick="showAddStockModal()">
+                    <i class="fas fa-plus me-1"></i>주식 추가
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>종목명</th>
+                                <th>보유수량</th>
+                                <th>현재가</th>
+                                <th>평균단가</th>
+                                <th>총매입금액</th>
+                                <th>현재가치</th>
+                                <th>수익률</th>
+                                <th>비중</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>데이터를 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 섹터 분석 차트 영역 -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>섹터별 분산
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="sector-chart" style="height: 300px;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                        <p>차트 데이터 준비중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>수익률 추이
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="performance-chart" style="height: 300px;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>차트 데이터 준비중...</p>
                     </div>
                 </div>
             </div>
@@ -31,254 +124,88 @@
     </div>
 </div>
 
-<!-- 차트 영역 -->
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <!-- 차트 컨테이너 -->
-            <div id="chartContainer" style="display: none;">
-                <!-- 회사 정보 헤더 -->
-                <div class="mb-4">
-                    <h2 class="text-primary fw-bold" id="companyNameHeader">
-                        <i class="fas fa-building me-2"></i>
-                        <span id="companyName"></span>
-                        <small class="text-muted ms-2" id="stockCode" style="font-size: 0.6em;"></small>
-                    </h2>
-                    <hr class="my-3">
-                </div>
-                
-                <!-- 주가 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        1. 주가 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshPriceData()" title="주가 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="priceChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 주가 차트 개별 로딩 오버레이 -->
-                        <div id="priceChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="priceLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 매출 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        2. 매출 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshRevenueData()" title="매출 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="revenueChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 매출 차트 개별 로딩 오버레이 -->
-                        <div id="revenueChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="revenueLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 영업이익 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        3. 영업이익 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshOperatingIncomeData()" title="영업이익 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="operatingIncomeChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 영업이익 차트 개별 로딩 오버레이 -->
-                        <div id="operatingIncomeChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="operatingIncomeLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 당기순이익 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        4. 당기순이익 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshNetProfitData()" title="당기순이익 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="netProfitChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 당기순이익 차트 개별 로딩 오버레이 -->
-                        <div id="netProfitChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="netProfitLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 총부채 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        5. 총부채 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshTotalDebtData()" title="총부채 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="totalDebtChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 총부채 차트 개별 로딩 오버레이 -->
-                        <div id="totalDebtChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="totalDebtLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 유동부채 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        6. 유동부채 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshCurrentLiabilitiesData()" title="유동부채 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="currentLiabilitiesChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 유동부채 차트 개별 로딩 오버레이 -->
-                        <div id="currentLiabilitiesChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="currentLiabilitiesLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 이자비용 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        7. 이자비용 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshInterestExpenseData()" title="이자비용 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="interestExpenseChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 이자비용 차트 개별 로딩 오버레이 -->
-                        <div id="interestExpenseChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="interestExpenseLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 현금및현금성자산 차트 -->
-                <div class="mb-4">
-                    <h4 class="mb-3">
-                        8. 현금및현금성자산 
-                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshCashData()" title="현금성자산 데이터 새로고침">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </h4>
-                    <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="cashChart" width="400" height="200"></canvas>
-                        </div>
-                        <!-- 현금성자산 차트 개별 로딩 오버레이 -->
-                        <div id="cashChartLoading" class="chart-loading-overlay" style="display: none;">
-                            <div class="text-center">
-                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                                <p class="mb-0"><small id="cashLoadingText">새로고침 중...</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+<!-- 주식 추가 모달 -->
+<div class="modal fade" id="addStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>새 주식 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            
-            <!-- 로딩 메시지 및 Progress Bar -->
-            <div id="loadingMessage" class="text-center text-muted" style="display: none;">
-                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
-                <p id="loadingText">데이터를 조회하고 있습니다...</p>
-                
-                <!-- Progress Bar -->
-                <div class="progress mt-3" style="max-width: 500px; margin: 0 auto; height: 30px;">
-                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                         role="progressbar" 
-                         style="width: 0%;" 
-                         aria-valuenow="0" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        <span id="progressText">0%</span>
+            <div class="modal-body">
+                <form id="addStockForm">
+                    <div class="mb-3">
+                        <label for="stockName" class="form-label">종목명</label>
+                        <input type="text" class="form-control" id="stockName" required>
                     </div>
-                </div>
-                
-                <!-- 단계별 진행 상황 -->
-                <div class="mt-3" style="max-width: 900px; margin: 0 auto;">
-                    <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.8em;">
-                        <span id="step1" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 기본정보
-                        </span>
-                        <span id="step2" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 주가
-                        </span>
-                        <span id="step3" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 매출
-                        </span>
-                        <span id="step4" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 영업이익
-                        </span>
-                        <span id="step5" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 당기순이익
-                        </span>
-                        <span id="step6" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 총부채
-                        </span>
-                        <span id="step7" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 유동부채
-                        </span>
-                        <span id="step8" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 이자비용
-                        </span>
-                        <span id="step9" class="text-muted">
-                            <i class="fas fa-circle" style="font-size: 5px;"></i> 현금성자산
-                        </span>
+                    <div class="mb-3">
+                        <label for="stockSymbol" class="form-label">종목 코드</label>
+                        <input type="text" class="form-control" id="stockSymbol" required>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="stockQuantity" class="form-label">보유 수량</label>
+                        <input type="number" class="form-control" id="stockQuantity" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockPrice" class="form-label">현재 가격</label>
+                        <input type="number" class="form-control" id="stockPrice" min="0" step="0.01" required>
+                    </div>
+                </form>
             </div>
-            
-            <!-- 빈 상태 메시지 -->
-            <div id="emptyState" class="text-center text-muted mt-5">
-                <i class="fas fa-search fa-3x mb-3"></i>
-                <p>주식 코드를 입력하여 분석을 시작하세요.</p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addStock()">추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 거래 추가 모달 -->
+<div class="modal fade" id="addTransactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exchange-alt me-2"></i>거래 기록 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addTransactionForm">
+                    <div class="mb-3">
+                        <label for="transactionStock" class="form-label">종목 선택</label>
+                        <select class="form-select" id="transactionStock" required>
+                            <option value="">종목을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionType" class="form-label">거래 유형</label>
+                        <select class="form-select" id="transactionType" required>
+                            <option value="">선택하세요</option>
+                            <option value="buy">매수</option>
+                            <option value="sell">매도</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionQuantity" class="form-label">수량</label>
+                        <input type="number" class="form-control" id="transactionQuantity" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionPrice" class="form-label">가격</label>
+                        <input type="number" class="form-control" id="transactionPrice" min="0" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transactionDate" class="form-label">거래 일시</label>
+                        <input type="date" class="form-control" id="transactionDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addTransaction()">추가</button>
             </div>
         </div>
     </div>
@@ -287,1331 +214,177 @@
 
 {% block extra_js %}
 <script>
-    // 전역 변수: 현재 조회 중인 종목의 시장 정보
-    let currentMarket = null;
-    
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
-        // 입력 제한 설정
-        const searchInput = document.getElementById('mainSearchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', function(e) {
-                if (e.target.value.length > 50) {
-                    e.target.value = e.target.value.substring(0, 50);
-                }
-            });
-        }
+        loadPortfolioData();
+        loadPortfolioTable();
+        setupTransactionDate();
     });
 
-    // 개별 차트 로딩 표시/숨김 함수
-    function showChartLoading(chartId, message) {
-        const loadingOverlay = document.getElementById(chartId + 'Loading');
-        const loadingText = document.getElementById(chartId.replace('Chart', 'LoadingText'));
-        
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'flex';
-        }
-        if (loadingText && message) {
-            loadingText.textContent = message;
-        }
-    }
-    
-    function hideChartLoading(chartId) {
-        const loadingOverlay = document.getElementById(chartId + 'Loading');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    }
-    
-    // 개별 데이터 새로고침 기능 - 해당 차트만 로딩 표시
-    async function refreshPriceData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 주가 차트에만 로딩 표시
-        showChartLoading('priceChart', '새로고침 중...');
-        
+    // 포트폴리오 데이터 로드
+    async function loadPortfolioData() {
         try {
-            const response = await fetch('/api/stock/price/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
+            const summary = await apiCall('/api/portfolio/summary');
+            const stocks = await apiCall('/api/stocks');
+            
+            // 총 포트폴리오 가치
+            document.getElementById('total-portfolio-value').textContent = formatCurrency(summary.total_value);
+            
+            // 총 수익
+            document.getElementById('total-profit').textContent = formatCurrency(summary.total_profit);
+            
+            // 총 수익률 계산
+            const totalReturn = summary.total_value > 0 ? (summary.total_profit / (summary.total_value - summary.total_profit)) * 100 : 0;
+            document.getElementById('total-return').textContent = totalReturn.toFixed(2) + '%';
+            
+            // 분산투자 점수 (간단한 계산)
+            const diversificationScore = Math.min(stocks.length * 10, 100);
+            document.getElementById('diversification-score').textContent = diversificationScore + '/100';
+            
+            // 수익률 색상 변경
+            const returnElement = document.getElementById('total-return');
+            if (totalReturn >= 0) {
+                returnElement.style.color = '#27ae60';
+            } else {
+                returnElement.style.color = '#e74c3c';
+            }
+            
+        } catch (error) {
+            console.error('포트폴리오 데이터 로드 오류:', error);
+        }
+    }
+
+    // 포트폴리오 테이블 로드
+    async function loadPortfolioTable() {
+        try {
+            const stocks = await apiCall('/api/stocks');
+            const transactions = await apiCall('/api/transactions');
+            
+            const tbody = document.querySelector('#portfolio-table tbody');
+            
+            if (stocks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">
+                            <i class="fas fa-inbox me-2"></i>보유 주식이 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let totalValue = 0;
+            stocks.forEach(stock => {
+                totalValue += stock.quantity * stock.price;
             });
             
-            const result = await response.json();
-            
-            if (result.success) {
-                displayPriceChart(result.chart_data);
-                hideChartLoading('priceChart');
+            tbody.innerHTML = stocks.map(stock => {
+                const currentValue = stock.quantity * stock.price;
+                const weight = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
                 
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `주가 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('priceChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('priceChart');
-            console.error('주가 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-        }
-    }
-
-    async function refreshRevenueData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 매출 차트에만 로딩 표시
-        showChartLoading('revenueChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/revenue/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayRevenueChart(result.chart_data);
-                hideChartLoading('revenueChart');
+                // 평균 단가 계산 (간단한 로직)
+                const avgPrice = stock.price; // 실제로는 거래 히스토리에서 계산해야 함
+                const profitRate = avgPrice > 0 ? ((stock.price - avgPrice) / avgPrice) * 100 : 0;
                 
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `매출 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('revenueChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('revenueChart');
-            console.error('매출 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-        }
-    }
-
-    async function refreshOperatingIncomeData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 영업이익 차트에만 로딩 표시
-        showChartLoading('operatingIncomeChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/operating_income/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayOperatingIncomeChart(result.chart_data);
-                hideChartLoading('operatingIncomeChart');
+                const profitRateClass = profitRate >= 0 ? 'text-success' : 'text-danger';
+                const profitRateIcon = profitRate >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
                 
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `영업이익 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('operatingIncomeChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
+                return `
+                    <tr>
+                        <td>
+                            <strong>${stock.name}</strong><br>
+                            <small class="text-muted">${stock.symbol}</small>
+                        </td>
+                        <td>${formatNumber(stock.quantity)}주</td>
+                        <td>${formatCurrency(stock.price)}</td>
+                        <td>${formatCurrency(avgPrice)}</td>
+                        <td>${formatCurrency(stock.quantity * avgPrice)}</td>
+                        <td>${formatCurrency(currentValue)}</td>
+                        <td class="${profitRateClass}">
+                            <i class="fas ${profitRateIcon} me-1"></i>
+                            ${profitRate.toFixed(2)}%
+                        </td>
+                        <td>${weight.toFixed(1)}%</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="editStock(${stock.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteStock(${stock.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
         } catch (error) {
-            hideChartLoading('operatingIncomeChart');
-            console.error('영업이익 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
+            console.error('포트폴리오 테이블 로드 오류:', error);
         }
     }
 
-    async function refreshNetProfitData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 당기순이익 차트에만 로딩 표시
-        showChartLoading('netProfitChart', '새로고침 중...');
-        
+    // 주식 추가 모달 표시
+    function showAddStockModal() {
+        const modal = new bootstrap.Modal(document.getElementById('addStockModal'));
+        modal.show();
+    }
+
+    // 주식 추가
+    async function addStock() {
+        const form = document.getElementById('addStockForm');
+        const formData = {
+            name: document.getElementById('stockName').value,
+            symbol: document.getElementById('stockSymbol').value,
+            quantity: parseInt(document.getElementById('stockQuantity').value),
+            price: parseFloat(document.getElementById('stockPrice').value),
+            sector: document.getElementById('stockSector').value
+        };
+
         try {
-            const response = await fetch('/api/stock/net_profit/refresh', {
+            await apiCall('/api/stocks', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
+                body: JSON.stringify(formData)
             });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayNetProfitChart(result.chart_data);
-                hideChartLoading('netProfitChart');
+
+            showAlert('주식이 성공적으로 추가되었습니다.', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addStockModal')).hide();
+            loadPortfolioData();
+            loadPortfolioTable();
+        } catch (error) {
+            console.error('주식 추가 오류:', error);
+        }
+    }
+
+    // 주식 수정
+    function editStock(stockId) {
+        showAlert('주식 수정 기능은 준비중입니다.', 'info');
+    }
+
+    // 주식 삭제
+    async function deleteStock(stockId) {
+        if (confirm('정말로 이 주식을 삭제하시겠습니까?')) {
+            try {
+                await apiCall(`/api/stocks/${stockId}`, {
+                    method: 'DELETE'
+                });
                 
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `당기순이익 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('netProfitChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
+                showAlert('주식이 삭제되었습니다.', 'success');
+                loadPortfolioData();
+                loadPortfolioTable();
+            } catch (error) {
+                console.error('주식 삭제 오류:', error);
             }
-        } catch (error) {
-            hideChartLoading('netProfitChart');
-            console.error('당기순이익 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
         }
     }
 
-    async function refreshTotalDebtData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 총부채 차트에만 로딩 표시
-        showChartLoading('totalDebtChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/total_debt/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayTotalDebtChart(result.chart_data);
-                hideChartLoading('totalDebtChart');
-                
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `총부채 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('totalDebtChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('totalDebtChart');
-            console.error('총부채 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
+    // 거래 일시 기본값 설정
+    function setupTransactionDate() {
+        const dateInput = document.getElementById('transactionDate');
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
         }
     }
-
-    async function refreshCurrentLiabilitiesData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 유동부채 차트에만 로딩 표시
-        showChartLoading('currentLiabilitiesChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/current_liabilities/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayCurrentLiabilitiesChart(result.chart_data);
-                hideChartLoading('currentLiabilitiesChart');
-                
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `유동부채 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('currentLiabilitiesChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('currentLiabilitiesChart');
-            console.error('유동부채 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-        }
-    }
-
-    async function refreshInterestExpenseData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 이자비용 차트에만 로딩 표시
-        showChartLoading('interestExpenseChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/interest_expense/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayInterestExpenseChart(result.chart_data);
-                hideChartLoading('interestExpenseChart');
-                
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `이자비용 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('interestExpenseChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('interestExpenseChart');
-            console.error('이자비용 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-        }
-    }
-
-    async function refreshCashData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 현금성자산 차트에만 로딩 표시
-        showChartLoading('cashChart', '새로고침 중...');
-        
-        try {
-            const response = await fetch('/api/stock/cash/refresh', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                displayCashChart(result.chart_data);
-                hideChartLoading('cashChart');
-                
-                if (result.deleted_count > 0) {
-                    showAlert(result.message || `현금성자산 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
-                }
-            } else {
-                hideChartLoading('cashChart');
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            }
-        } catch (error) {
-            hideChartLoading('cashChart');
-            console.error('현금성자산 새로고침 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-        }
-    }
-
-    // Progress Bar 업데이트 함수
-    function updateProgress(percentage, message, stepNumber) {
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const loadingText = document.getElementById('loadingText');
-        
-        if (progressBar) {
-            progressBar.style.width = percentage + '%';
-            progressBar.setAttribute('aria-valuenow', percentage);
-            progressText.textContent = percentage + '%';
-        }
-        
-        if (loadingText && message) {
-            loadingText.textContent = message;
-        }
-        
-        // 단계별 아이콘 업데이트
-        if (stepNumber >= 1) {
-            document.getElementById('step1').innerHTML = '<i class="fas fa-check-circle text-success"></i> 기본 정보';
-        }
-        if (stepNumber >= 2) {
-            document.getElementById('step2').innerHTML = '<i class="fas fa-check-circle text-success"></i> 주가';
-        }
-        if (stepNumber >= 3) {
-            document.getElementById('step3').innerHTML = '<i class="fas fa-check-circle text-success"></i> 매출';
-        }
-        if (stepNumber >= 4) {
-            document.getElementById('step4').innerHTML = '<i class="fas fa-check-circle text-success"></i> 영업이익';
-        }
-        if (stepNumber >= 5) {
-            document.getElementById('step5').innerHTML = '<i class="fas fa-check-circle text-success"></i> 당기순이익';
-        }
-        if (stepNumber >= 6) {
-            document.getElementById('step6').innerHTML = '<i class="fas fa-check-circle text-success"></i> 총부채';
-        }
-        if (stepNumber >= 7) {
-            document.getElementById('step7').innerHTML = '<i class="fas fa-check-circle text-success"></i> 유동부채';
-        }
-        if (stepNumber >= 8) {
-            document.getElementById('step8').innerHTML = '<i class="fas fa-check-circle text-success"></i> 이자비용';
-        }
-        if (stepNumber >= 9) {
-            document.getElementById('step9').innerHTML = '<i class="fas fa-check-circle text-success"></i> 현금성자산';
-        }
-    }
-    
-    // Progress Bar 초기화 함수
-    function resetProgress() {
-        updateProgress(0, '데이터를 조회하고 있습니다...', 0);
-        document.getElementById('step1').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 기본정보';
-        document.getElementById('step2').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 주가';
-        document.getElementById('step3').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 매출';
-        document.getElementById('step4').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 영업이익';
-        document.getElementById('step5').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 당기순이익';
-        document.getElementById('step6').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 총부채';
-        document.getElementById('step7').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 유동부채';
-        document.getElementById('step8').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 이자비용';
-        document.getElementById('step9').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 현금성자산';
-    }
-
-    // 검색 기능 - 순차적 로딩 (캐시 확인 방식, 4년 고정)
-    async function performSearch() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
-        const period = 4; // 4년 고정
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        // 입력값 검증: 영어만 있거나 숫자만 있어야 함
-        const isEnglishOnly = /^[A-Za-z]+$/.test(searchTerm);
-        const isNumberOnly = /^[0-9]+$/.test(searchTerm);
-        
-        if (!isEnglishOnly && !isNumberOnly) {
-            errorMessage.textContent = '정확한 정보를 입력하세요!';
-            errorMessage.style.display = 'block';
-            return;
-        }
-        
-        errorMessage.style.display = 'none';
-        
-        // 로딩 표시 및 Progress Bar 초기화
-        showLoading();
-        resetProgress();
-        
-        try {
-            // 1. 기본 정보 조회 (0% → 33%)
-            updateProgress(10, '기본 정보를 조회하고 있습니다...', 0);
-            
-            const searchResponse = await fetch('/api/stock/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: searchTerm, period: period })
-            });
-            
-            const searchResult = await searchResponse.json();
-            
-            if (!searchResult.success) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            
-            updateProgress(33, '기본 정보 조회 완료', 1);
-            
-            // 회사명 및 시장 정보 저장 (차트는 아직 표시 안함)
-            currentMarket = searchResult.market;
-            
-            // 2. 주가 데이터 순차적 로딩 (33% → 66%)
-            updateProgress(40, '주가 데이터를 처리하고 있습니다...', 1);
-            const priceSuccess = await processPriceData(searchTerm, period);
-            if (!priceSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(66, '주가 데이터 처리 완료', 2);
-            
-            // 3. 매출 데이터 순차적 로딩 (66% → 75%)
-            updateProgress(70, '매출 데이터를 처리하고 있습니다...', 2);
-            const revenueSuccess = await processRevenueData(searchTerm, period);
-            if (!revenueSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(75, '매출 데이터 처리 완료', 3);
-            
-            // 4. 영업이익 데이터 순차적 로딩 (75% → 85%)
-            updateProgress(80, '영업이익 데이터를 처리하고 있습니다...', 3);
-            const operatingIncomeSuccess = await processOperatingIncomeData(searchTerm, period);
-            if (!operatingIncomeSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(85, '영업이익 데이터 처리 완료', 4);
-            
-            // 5. 당기순이익 데이터 순차적 로딩 (85% → 92%)
-            updateProgress(88, '당기순이익 데이터를 처리하고 있습니다...', 4);
-            const netProfitSuccess = await processNetProfitData(searchTerm, period);
-            if (!netProfitSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(92, '당기순이익 데이터 처리 완료', 5);
-            
-            // 6. 총부채 데이터 순차적 로딩 (92% → 95%)
-            updateProgress(93, '총부채 데이터를 처리하고 있습니다...', 5);
-            const totalDebtSuccess = await processTotalDebtData(searchTerm, period);
-            if (!totalDebtSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(95, '총부채 데이터 처리 완료', 6);
-            
-            // 7. 유동부채 데이터 순차적 로딩 (95% → 97%)
-            updateProgress(96, '유동부채 데이터를 처리하고 있습니다...', 6);
-            const currentLiabilitiesSuccess = await processCurrentLiabilitiesData(searchTerm, period);
-            if (!currentLiabilitiesSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(97, '유동부채 데이터 처리 완료', 7);
-            
-            // 8. 이자비용 데이터 순차적 로딩 (97% → 98%)
-            updateProgress(97.5, '이자비용 데이터를 처리하고 있습니다...', 7);
-            const interestExpenseSuccess = await processInterestExpenseData(searchTerm, period);
-            if (!interestExpenseSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(98, '이자비용 데이터 처리 완료', 8);
-            
-            // 9. 현금성자산 데이터 순차적 로딩 (98% → 100%)
-            updateProgress(99, '현금성자산 데이터를 처리하고 있습니다...', 8);
-            const cashSuccess = await processCashData(searchTerm, period);
-            if (!cashSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
-            }
-            updateProgress(100, '모든 데이터 로딩 완료!', 9);
-            
-            // 모든 데이터가 성공적으로 로드된 후에만 차트 컨테이너 표시
-            showChart();
-            updateCompanyHeader(searchResult.company_name, searchResult.stock_code, searchResult.market);
-            
-            // 잠시 후 로딩 완료
-            setTimeout(() => {
-                hideLoading();
-            }, 500);
-            
-        } catch (error) {
-            console.error('검색 오류:', error);
-            showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-            hideChart();
-        }
-    }
-    
-    // 주가 데이터 처리 함수 (캐시 확인)
-    async function processPriceData(ticker, period) {
-        try {
-            const priceResponse = await fetch('/api/stock/price/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const priceResult = await priceResponse.json();
-            
-            if (priceResult.success) {
-                displayPriceChart(priceResult.chart_data);
-                console.log(priceResult.message);
-                return true;
-            } else {
-                console.error('주가 데이터 처리 실패:', priceResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('주가 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 매출 데이터 처리 함수 (캐시 확인)
-    async function processRevenueData(ticker, period) {
-        try {
-            const revenueResponse = await fetch('/api/stock/revenue/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const revenueResult = await revenueResponse.json();
-            
-            if (revenueResult.success) {
-                displayRevenueChart(revenueResult.chart_data);
-                console.log(revenueResult.message);
-                return true;
-            } else {
-                console.error('매출 데이터 처리 실패:', revenueResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('매출 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 영업이익 데이터 처리 함수 (캐시 확인)
-    async function processOperatingIncomeData(ticker, period) {
-        try {
-            const operatingIncomeResponse = await fetch('/api/stock/operating_income/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const operatingIncomeResult = await operatingIncomeResponse.json();
-            
-            if (operatingIncomeResult.success) {
-                displayOperatingIncomeChart(operatingIncomeResult.chart_data);
-                console.log(operatingIncomeResult.message);
-                return true;
-            } else {
-                console.error('영업이익 데이터 처리 실패:', operatingIncomeResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('영업이익 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 당기순이익 데이터 처리 함수 (캐시 확인)
-    async function processNetProfitData(ticker, period) {
-        try {
-            const netProfitResponse = await fetch('/api/stock/net_profit/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const netProfitResult = await netProfitResponse.json();
-            
-            if (netProfitResult.success) {
-                displayNetProfitChart(netProfitResult.chart_data);
-                console.log(netProfitResult.message);
-                return true;
-            } else {
-                console.error('당기순이익 데이터 처리 실패:', netProfitResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('당기순이익 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 총부채 데이터 처리 함수 (캐시 확인)
-    async function processTotalDebtData(ticker, period) {
-        try {
-            const totalDebtResponse = await fetch('/api/stock/total_debt/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const totalDebtResult = await totalDebtResponse.json();
-            
-            if (totalDebtResult.success) {
-                displayTotalDebtChart(totalDebtResult.chart_data);
-                console.log(totalDebtResult.message);
-                return true;
-            } else {
-                console.error('총부채 데이터 처리 실패:', totalDebtResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('총부채 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 유동부채 데이터 처리 함수 (캐시 확인)
-    async function processCurrentLiabilitiesData(ticker, period) {
-        try {
-            const currentLiabilitiesResponse = await fetch('/api/stock/current_liabilities/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const currentLiabilitiesResult = await currentLiabilitiesResponse.json();
-            
-            if (currentLiabilitiesResult.success) {
-                displayCurrentLiabilitiesChart(currentLiabilitiesResult.chart_data);
-                console.log(currentLiabilitiesResult.message);
-                return true;
-            } else {
-                console.error('유동부채 데이터 처리 실패:', currentLiabilitiesResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('유동부채 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 이자비용 데이터 처리 함수 (캐시 확인)
-    async function processInterestExpenseData(ticker, period) {
-        try {
-            const interestExpenseResponse = await fetch('/api/stock/interest_expense/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const interestExpenseResult = await interestExpenseResponse.json();
-            
-            if (interestExpenseResult.success) {
-                displayInterestExpenseChart(interestExpenseResult.chart_data);
-                console.log(interestExpenseResult.message);
-                return true;
-            } else {
-                console.error('이자비용 데이터 처리 실패:', interestExpenseResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('이자비용 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    async function processCashData(ticker, period) {
-        try {
-            const cashResponse = await fetch('/api/stock/cash/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
-            });
-            
-            const cashResult = await cashResponse.json();
-            
-            if (cashResult.success) {
-                displayCashChart(cashResult.chart_data);
-                console.log(cashResult.message);
-                return true;
-            } else {
-                console.error('현금성자산 데이터 처리 실패:', cashResult.error);
-                return false;
-            }
-        } catch (error) {
-            console.error('현금성자산 데이터 처리 오류:', error);
-            return false;
-        }
-    }
-    
-    // 회사 정보 헤더 업데이트
-    function updateCompanyHeader(companyName, stockCode, market) {
-        const companyNameElement = document.getElementById('companyName');
-        const stockCodeElement = document.getElementById('stockCode');
-        
-        // 회사명 표시
-        companyNameElement.textContent = companyName;
-        
-        // 주식 코드와 시장 표시
-        const marketLabel = market === 'US' ? '미국' : '한국';
-        stockCodeElement.textContent = `(${stockCode} - ${marketLabel})`;
-    }
-    
-    // 에러 메시지 표시
-    function showError(message) {
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-        hideLoading();
-    }
-    
-    // 에러 메시지 숨기기
-    function hideError() {
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.style.display = 'none';
-    }
-    
-    // 알림 메시지 표시
-    function showAlert(message, type = 'info') {
-        // 기존 알림 제거
-        const existingAlerts = document.querySelectorAll('.alert-dismissible');
-        existingAlerts.forEach(alert => alert.remove());
-        
-        // 새로운 알림 생성
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.style.position = 'fixed';
-        alertDiv.style.top = '20px';
-        alertDiv.style.right = '20px';
-        alertDiv.style.zIndex = '9999';
-        alertDiv.style.minWidth = '300px';
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        document.body.appendChild(alertDiv);
-        
-        // 5초 후 자동 제거
-        setTimeout(() => {
-            if (alertDiv && alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
-    }
-    
-    // 로딩 표시
-    function showLoading() {
-        document.getElementById('loadingMessage').style.display = 'block';
-        document.getElementById('chartContainer').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'none';
-    }
-    
-    // 로딩 숨기기
-    function hideLoading() {
-        document.getElementById('loadingMessage').style.display = 'none';
-    }
-    
-    // 차트 표시
-    function showChart() {
-        document.getElementById('chartContainer').style.display = 'block';
-        document.getElementById('emptyState').style.display = 'none';
-        hideLoading();
-    }
-    
-    // 차트 숨기기
-    function hideChart() {
-        document.getElementById('chartContainer').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'block';
-        hideLoading();
-    }
-    
-    // 차트 표시
-    function displayPriceChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('주가 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('주가 차트 데이터:', chartData);
-        
-        // 기존 주가 차트 제거
-        const existingChart = Chart.getChart('priceChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 주가 차트 생성
-        const priceCtx = document.getElementById('priceChart').getContext('2d');
-        new Chart(priceCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: '주가',
-                    data: chartData.prices,
-                    borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '주가'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: '주가'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayRevenueChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('매출 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('매출 차트 데이터:', chartData);
-        
-        // 기존 매출 차트 제거
-        const existingChart = Chart.getChart('revenueChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 매출 단위 결정 (시장에 따라)
-        const revenueLabel = currentMarket === 'US' ? '매출 (Billion USD)' : '매출 (억원)';
-        
-        // 매출 차트 생성
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: revenueLabel,
-                    data: chartData.revenues,
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '매출'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Revenue (Billion USD)' : '매출 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayOperatingIncomeChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('영업이익 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('영업이익 차트 데이터:', chartData);
-        
-        // 기존 영업이익 차트 제거
-        const existingChart = Chart.getChart('operatingIncomeChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 영업이익 단위 결정 (시장에 따라)
-        const operatingIncomeLabel = currentMarket === 'US' ? '영업이익 (Billion USD)' : '영업이익 (억원)';
-        
-        // 영업이익 차트 생성
-        const operatingIncomeCtx = document.getElementById('operatingIncomeChart').getContext('2d');
-        new Chart(operatingIncomeCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: operatingIncomeLabel,
-                    data: chartData.operating_incomes,
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '영업이익'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Operating Income (Billion USD)' : '영업이익 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayNetProfitChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('당기순이익 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('당기순이익 차트 데이터:', chartData);
-        
-        // 기존 당기순이익 차트 제거
-        const existingChart = Chart.getChart('netProfitChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 당기순이익 단위 결정 (시장에 따라)
-        const netProfitLabel = currentMarket === 'US' ? '당기순이익 (Billion USD)' : '당기순이익 (억원)';
-        
-        // 당기순이익 차트 생성
-        const netProfitCtx = document.getElementById('netProfitChart').getContext('2d');
-        new Chart(netProfitCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: netProfitLabel,
-                    data: chartData.net_profits,
-                    borderColor: 'rgb(153, 102, 255)',
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '당기순이익'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Net Profit (Billion USD)' : '당기순이익 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayTotalDebtChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('총부채 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('총부채 차트 데이터:', chartData);
-        
-        // 기존 총부채 차트 제거
-        const existingChart = Chart.getChart('totalDebtChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 총부채 단위 결정 (시장에 따라)
-        const totalDebtLabel = currentMarket === 'US' ? '총부채 (Billion USD)' : '총부채 (억원)';
-        
-        // 총부채 차트 생성
-        const totalDebtCtx = document.getElementById('totalDebtChart').getContext('2d');
-        new Chart(totalDebtCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: totalDebtLabel,
-                    data: chartData.total_debts,
-                    borderColor: 'rgb(255, 159, 64)',
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '총부채'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Total Debt (Billion USD)' : '총부채 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayCurrentLiabilitiesChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('유동부채 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('유동부채 차트 데이터:', chartData);
-        
-        // 기존 유동부채 차트 제거
-        const existingChart = Chart.getChart('currentLiabilitiesChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 유동부채 단위 결정 (시장에 따라)
-        const currentLiabilitiesLabel = currentMarket === 'US' ? '유동부채 (Billion USD)' : '유동부채 (억원)';
-        
-        // 유동부채 차트 생성
-        const currentLiabilitiesCtx = document.getElementById('currentLiabilitiesChart').getContext('2d');
-        new Chart(currentLiabilitiesCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: currentLiabilitiesLabel,
-                    data: chartData.current_liabilities,
-                    borderColor: 'rgb(255, 99, 71)',
-                    backgroundColor: 'rgba(255, 99, 71, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '유동부채'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Current Liabilities (Billion USD)' : '유동부채 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayInterestExpenseChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('이자비용 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('이자비용 차트 데이터:', chartData);
-        
-        // 기존 이자비용 차트 제거
-        const existingChart = Chart.getChart('interestExpenseChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 이자비용 단위 결정 (시장에 따라)
-        const interestExpenseLabel = currentMarket === 'US' ? '이자비용 (Billion USD)' : '이자비용 (억원)';
-        
-        // 이자비용 차트 생성
-        const interestExpenseCtx = document.getElementById('interestExpenseChart').getContext('2d');
-        new Chart(interestExpenseCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: interestExpenseLabel,
-                    data: chartData.interest_expenses,
-                    borderColor: 'rgb(201, 203, 207)',
-                    backgroundColor: 'rgba(201, 203, 207, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '이자비용'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Interest Expense (Billion USD)' : '이자비용 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function displayCashChart(chartData) {
-        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
-            console.error('현금성자산 차트 데이터를 생성할 수 없습니다.');
-            return;
-        }
-        
-        console.log('현금성자산 차트 데이터:', chartData);
-        
-        // 기존 현금성자산 차트 제거
-        const existingChart = Chart.getChart('cashChart');
-        if (existingChart) {
-            existingChart.destroy();
-        }
-        
-        // 현금성자산 단위 결정 (시장에 따라)
-        const cashLabel = currentMarket === 'US' ? '현금성자산 (Billion USD)' : '현금성자산 (억원)';
-        
-        // 현금성자산 차트 생성
-        const cashCtx = document.getElementById('cashChart').getContext('2d');
-        new Chart(cashCtx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: cashLabel,
-                    data: chartData.cash_values,
-                    borderColor: 'rgb(255, 205, 86)',
-                    backgroundColor: 'rgba(255, 205, 86, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '현금및현금성자산'
-                    }
-                },
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: currentMarket === 'US' ? 'Cash (Billion USD)' : '현금성자산 (억원)'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 검색어 지우기
-    function clearSearch() {
-        // 입력 필드 초기화
-        document.getElementById('mainSearchInput').value = '';
-        document.getElementById('mainSearchInput').focus();
-        
-        // 에러 메시지 숨기기
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.style.display = 'none';
-        
-        // 차트 숨기기
-        document.getElementById('chartContainer').style.display = 'none';
-        document.getElementById('emptyState').style.display = 'block';
-        
-        // 기존 차트들 제거
-        const existingCharts = ['priceChart', 'revenueChart', 'operatingIncomeChart', 'netProfitChart', 'totalDebtChart', 'currentLiabilitiesChart', 'interestExpenseChart', 'cashChart'];
-        existingCharts.forEach(chartId => {
-            const existingChart = Chart.getChart(chartId);
-            if (existingChart) {
-                existingChart.destroy();
-            }
-        });
-        
-        // 에러 메시지 제거
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => alert.remove());
-        
-        // 기존 알림 제거
-        const existingAlerts = document.querySelectorAll('.alert-dismissible');
-        existingAlerts.forEach(alert => alert.remove());
-    }
-
-    // 엔터키로 검색
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('mainSearchInput');
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
-            });
-        }
-    });
 </script>
 {% endblock %}
