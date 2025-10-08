@@ -2441,8 +2441,153 @@ def index():
 
 @app.route('/stock-analysis')
 def stock_analysis():
-    """Stock 분석 페이지 - 홈과 동일"""
-    return render_template('index.html')
+    """Stock 분석 페이지"""
+    return render_template('stock_analysis.html')
+
+@app.route('/api/stock/analysis', methods=['POST'])
+def api_stock_analysis():
+    """Stock 분석 API 엔드포인트"""
+    try:
+        data = request.get_json()
+        symbol = data.get('symbol', '').strip().upper()
+        period = data.get('period', 5)
+        
+        if not symbol:
+            return jsonify({'error': '주식 심볼을 입력해주세요.'}), 400
+        
+        # 주식 데이터 조회
+        stock_data = get_stock_analysis_data(symbol, period)
+        
+        if not stock_data:
+            return jsonify({'error': f'{symbol} 주식 데이터를 찾을 수 없습니다.'}), 404
+        
+        return jsonify(stock_data)
+        
+    except Exception as e:
+        print(f"Stock 분석 API 오류: {e}")
+        return jsonify({'error': '주식 분석 중 오류가 발생했습니다.'}), 500
+
+def get_stock_analysis_data(symbol, period):
+    """주식 분석 데이터 조회"""
+    try:
+        # 주식 기본 정보 조회
+        stock_info = get_stock_basic_info(symbol)
+        if not stock_info:
+            return None
+        
+        # 주가 데이터 조회
+        price_data = get_stock_price_data(symbol, period)
+        
+        # 매출 데이터 조회
+        revenue_data = get_stock_revenue_data(symbol, period)
+        
+        # 재무 데이터 조회
+        financial_data = get_stock_financial_data(symbol, period)
+        
+        return {
+            'symbol': symbol,
+            'period': period,
+            'stock_info': stock_info,
+            'price_data': price_data,
+            'revenue_data': revenue_data,
+            'financial_data': financial_data
+        }
+        
+    except Exception as e:
+        print(f"주식 분석 데이터 조회 오류: {e}")
+        return None
+
+def get_stock_basic_info(symbol):
+    """주식 기본 정보 조회"""
+    try:
+        # yfinance를 사용한 주식 기본 정보 조회
+        import yfinance as yf
+        stock = yf.Ticker(symbol)
+        info = stock.info
+        
+        return {
+            'name': info.get('longName', symbol),
+            'sector': info.get('sector', 'N/A'),
+            'industry': info.get('industry', 'N/A'),
+            'market_cap': info.get('marketCap', 0),
+            'current_price': info.get('currentPrice', 0)
+        }
+        
+    except Exception as e:
+        print(f"주식 기본 정보 조회 오류: {e}")
+        return None
+
+def get_stock_price_data(symbol, period):
+    """주가 데이터 조회"""
+    try:
+        import yfinance as yf
+        stock = yf.Ticker(symbol)
+        hist = stock.history(period=f"{period}y")
+        
+        if hist.empty:
+            return None
+        
+        return {
+            'dates': hist.index.strftime('%Y-%m-%d').tolist(),
+            'prices': hist['Close'].tolist(),
+            'volumes': hist['Volume'].tolist()
+        }
+        
+    except Exception as e:
+        print(f"주가 데이터 조회 오류: {e}")
+        return None
+
+def get_stock_revenue_data(symbol, period):
+    """매출 데이터 조회"""
+    try:
+        import yfinance as yf
+        stock = yf.Ticker(symbol)
+        financials = stock.financials
+        
+        if financials.empty:
+            return None
+        
+        # 매출 데이터 추출
+        revenue_data = []
+        for year in financials.columns:
+            revenue = financials.loc['Total Revenue', year] if 'Total Revenue' in financials.index else 0
+            revenue_data.append({
+                'year': year.year,
+                'revenue': revenue
+            })
+        
+        return revenue_data
+        
+    except Exception as e:
+        print(f"매출 데이터 조회 오류: {e}")
+        return None
+
+def get_stock_financial_data(symbol, period):
+    """재무 데이터 조회"""
+    try:
+        import yfinance as yf
+        stock = yf.Ticker(symbol)
+        financials = stock.financials
+        
+        if financials.empty:
+            return None
+        
+        # 재무 데이터 추출
+        financial_data = []
+        for year in financials.columns:
+            data = {
+                'year': year.year,
+                'revenue': financials.loc['Total Revenue', year] if 'Total Revenue' in financials.index else 0,
+                'operating_income': financials.loc['Operating Income', year] if 'Operating Income' in financials.index else 0,
+                'net_income': financials.loc['Net Income', year] if 'Net Income' in financials.index else 0
+            }
+            financial_data.append(data)
+        
+        return financial_data
+        
+    except Exception as e:
+        print(f"재무 데이터 조회 오류: {e}")
+        return None
 
 @app.route('/tax-analysis')
 def tax_analysis():

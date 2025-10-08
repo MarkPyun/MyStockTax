@@ -46,6 +46,25 @@
         .card:hover {
             transform: translateY(-2px);
         }
+        
+        /* 차트 개별 로딩 오버레이 */
+        .chart-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+        .chart-loading-overlay i {
+            color: #3498db;
+        }
 
         .btn {
             border-radius: 6px;
@@ -349,6 +368,43 @@
                 align-self: flex-start;
             }
         }
+
+        /* Footer 스타일 */
+        footer {
+            margin-top: auto;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        footer a {
+            color: #3498db;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #2980b9;
+        }
+
+        /* Body를 flex container로 만들어 footer를 하단에 고정 */
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        footer {
+            flex-shrink: 0;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -393,10 +449,28 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-muted mb-2">
+                        Copyright © 2025 Mark Pyun. All rights reserved.
+                    </p>
+                    <p class="text-muted mb-0">
+                        Contact: <a href="mailto:iufuture@naver.com" class="text-decoration-none">iufuture@naver.com</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     
     <script>
         // 공통 JavaScript 함수들
