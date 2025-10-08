@@ -50,13 +50,17 @@ except Exception as e:
     print(f"⚠️ FRED API 연결 실패: {e}")
 
 # 데이터베이스 자동 설정 모듈 임포트
+DB_SETUP_AVAILABLE = False
+ensure_table_exists = None
+
 try:
     from db_setup import check_all_tables, create_all_tables, export_to_sql_file, TABLE_SCHEMAS, ensure_table_exists
     DB_SETUP_AVAILABLE = True
-except ImportError:
-    print("[WARNING] db_setup 모듈을 찾을 수 없습니다. 수동으로 테이블을 생성해야 합니다.")
-    DB_SETUP_AVAILABLE = False
-    ensure_table_exists = None
+    print("✓ db_setup 모듈 로드 성공")
+except ImportError as e:
+    print(f"[WARNING] db_setup 모듈을 찾을 수 없습니다: {e}")
+except Exception as e:
+    print(f"[WARNING] db_setup 모듈 로드 중 오류: {e}")
 
 def check_and_create_tables():
     """테이블 존재 여부를 확인하고 자동 생성 시도"""
