@@ -11,8 +11,6 @@ sys.path.insert(0, project_root)
 # Flask 앱 임포트
 from app import app
 
-# Vercel의 WSGI 핸들러 - WSGI 애플리케이션으로 직접 반환
-def handler(environ, start_response):
-    """WSGI application handler for Vercel"""
-    return app.wsgi_app(environ, start_response)
+# Vercel의 WSGI 핸들러 - Flask 앱을 직접 export
+handler = app
 
