@@ -24,11 +24,11 @@ FRED_API_KEY = os.getenv('FRED_API_KEY')
 
 # 환경 변수 확인 (로컬 개발 시에만 경고)
 if not SUPABASE_URL or not SUPABASE_KEY:
-    print("⚠️ WARNING: SUPABASE_URL 및 SUPABASE_KEY 환경 변수가 설정되지 않았습니다.")
+    print("[WARNING] SUPABASE_URL 및 SUPABASE_KEY 환경 변수가 설정되지 않았습니다.")
     print("   일부 기능이 제한될 수 있습니다.")
 
 if not FRED_API_KEY:
-    print("⚠️ WARNING: FRED_API_KEY 환경 변수가 설정되지 않았습니다.")
+    print("[WARNING] FRED_API_KEY 환경 변수가 설정되지 않았습니다.")
     print("   경제 지표 기능이 제한될 수 있습니다.")
 
 # Supabase 클라이언트 생성 (환경 변수가 있을 때만)
@@ -38,16 +38,16 @@ fred = None
 try:
     if SUPABASE_URL and SUPABASE_KEY:
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✓ Supabase 연결 성공")
+        print("[SUCCESS] Supabase 연결 성공")
 except Exception as e:
-    print(f"⚠️ Supabase 연결 실패: {e}")
+    print(f"[WARNING] Supabase 연결 실패: {e}")
 
 try:
     if FRED_API_KEY:
         fred = Fred(api_key=FRED_API_KEY)
-        print("✓ FRED API 연결 성공")
+        print("[SUCCESS] FRED API 연결 성공")
 except Exception as e:
-    print(f"⚠️ FRED API 연결 실패: {e}")
+    print(f"[WARNING] FRED API 연결 실패: {e}")
 
 # 데이터베이스 자동 설정 모듈 임포트
 DB_SETUP_AVAILABLE = False
@@ -89,7 +89,8 @@ def check_and_create_tables():
         'stock_total_debt_data': '총부채',
         'stock_current_liabilities_data': '유동부채',
         'stock_interest_expense_data': '이자비용',
-        'stock_cash_data': '현금및현금성자산'
+        'stock_cash_data': '현금및현금성자산',
+        'stock_valuation_data': 'PBR/PER/EV/EBITDA'
     }
     
     missing_tables = []
@@ -345,6 +346,21 @@ def get_stock_cash_data(ticker, years=10):
         
     except Exception as e:
         print(f"현금및현금성자산 데이터 조회 오류: {e}")
+        return {}
+
+def get_stock_valuation_data(ticker, years=10):
+    """Yahoo Finance에서 PBR, PER, EV/EBITDA 데이터만 조회합니다."""
+    try:
+        yahoo_symbol = convert_to_yahoo_symbol(ticker)
+        ticker_obj = yf.Ticker(yahoo_symbol)
+        
+        # 밸류에이션 데이터 조회
+        valuation_data = get_valuation_data_from_yahoo(ticker_obj, years)
+        
+        return valuation_data
+        
+    except Exception as e:
+        print(f"밸류에이션 데이터 조회 오류: {e}")
         return {}
 
 def get_revenue_data_from_yahoo(ticker_obj, years=10):
@@ -1028,6 +1044,243 @@ def get_cash_data_from_yahoo(ticker_obj, years=10):
         traceback.print_exc()
         return {}
 
+def get_valuation_data_from_yahoo(ticker_obj, years=10):
+    """Yahoo Finance에서 PBR, PER, EV/EBITDA 데이터를 조회합니다 (분기별).
+    주의: Yahoo Finance quarterly_financials는 최근 5개 분기만 제공합니다."""
+    try:
+        current_date = datetime.now()
+        current_year = current_date.year
+        
+        valuation_data = {}
+        
+        # 필요한 데이터: 주가, Net Income, EBITDA, Tangible Book Value, Shares Outstanding
+        # 1. 분기별 주가 데이터 가져오기 (충분히 긴 기간)
+        hist = ticker_obj.history(period="2y")  # 2년치 주가 (5분기 커버)
+        
+        # Timezone 제거 (timezone-naive로 변환)
+        if hist.index.tz is not None:
+            hist.index = hist.index.tz_localize(None)
+        
+        # 2. 분기별 재무제표 데이터
+        quarterly_financials = ticker_obj.quarterly_financials
+        quarterly_balance_sheet = ticker_obj.quarterly_balance_sheet
+        
+        if quarterly_financials is None or quarterly_financials.empty:
+            print("[DEBUG] quarterly_financials is empty")
+            return {}
+            
+        if quarterly_balance_sheet is None or quarterly_balance_sheet.empty:
+            print("[DEBUG] quarterly_balance_sheet is empty")
+            return {}
+        
+        # 3. 분기별로 PBR, PER, EV/EBITDA 계산 (최근 5개 분기)
+        for col in quarterly_financials.columns:
+            year = col.year
+            quarter = ((col.month - 1) // 3) + 1
+            key = f"{year}Q{quarter}"
+            
+            try:
+                # Net Income 가져오기
+                net_income = None
+                if 'Net Income' in quarterly_financials.index:
+                    net_income = quarterly_financials.loc['Net Income', col]
+                
+                # EBITDA 가져오기
+                ebitda = None
+                if 'EBITDA' in quarterly_financials.index:
+                    ebitda = quarterly_financials.loc['EBITDA', col]
+                
+                # Tangible Book Value 가져오기
+                tangible_book_value = None
+                if col in quarterly_balance_sheet.columns:
+                    if 'Tangible Book Value' in quarterly_balance_sheet.index:
+                        tangible_book_value = quarterly_balance_sheet.loc['Tangible Book Value', col]
+                
+                # Shares Outstanding 가져오기
+                shares_outstanding = None
+                if col in quarterly_balance_sheet.columns:
+                    if 'Ordinary Shares Number' in quarterly_balance_sheet.index:
+                        shares_outstanding = quarterly_balance_sheet.loc['Ordinary Shares Number', col]
+                
+                # Total Debt 가져오기
+                total_debt = None
+                if col in quarterly_balance_sheet.columns:
+                    if 'Total Debt' in quarterly_balance_sheet.index:
+                        total_debt = quarterly_balance_sheet.loc['Total Debt', col]
+                
+                # Cash 가져오기
+                cash = None
+                if col in quarterly_balance_sheet.columns:
+                    if 'Cash And Cash Equivalents' in quarterly_balance_sheet.index:
+                        cash = quarterly_balance_sheet.loc['Cash And Cash Equivalents', col]
+                
+                # 해당 분기의 평균 주가 계산
+                quarter_start = col
+                quarter_end = col + pd.DateOffset(months=3)
+                quarter_prices = hist[(hist.index >= quarter_start) & (hist.index < quarter_end)]
+                
+                avg_price = None
+                if not quarter_prices.empty:
+                    avg_price = quarter_prices['Close'].mean()
+                
+                # 주가 데이터가 없으면 해당 분기 건너뛰기
+                if avg_price is None or pd.isna(avg_price):
+                    print(f"{key}: 주가 데이터 없음 - 건너뜀")
+                    continue
+                
+                # PER 계산 = 주가 / EPS = 주가 / (순이익 / 발행주식수)
+                per = None
+                if pd.notna(net_income) and pd.notna(shares_outstanding) and shares_outstanding > 0:
+                    eps = net_income / shares_outstanding
+                    if eps > 0:
+                        per = avg_price / eps
+                
+                # PBR 계산 = 주가 / BPS = 주가 / (Tangible Book Value / 발행주식수)
+                pbr = None
+                if pd.notna(tangible_book_value) and pd.notna(shares_outstanding) and shares_outstanding > 0:
+                    bps = tangible_book_value / shares_outstanding
+                    if bps > 0:
+                        pbr = avg_price / bps
+                
+                # EV/EBITDA 계산 = EV / EBITDA
+                # EV = Market Cap + Total Debt - Cash
+                ev_ebitda = None
+                if pd.notna(ebitda) and ebitda > 0 and pd.notna(shares_outstanding) and shares_outstanding > 0:
+                    market_cap = avg_price * shares_outstanding
+                    ev = market_cap
+                    
+                    if pd.notna(total_debt):
+                        ev += total_debt
+                    if pd.notna(cash):
+                        ev -= cash
+                    
+                    ev_ebitda = ev / ebitda
+                
+                # 데이터 저장
+                if per is not None or pbr is not None or ev_ebitda is not None:
+                    valuation_data[key] = {
+                        'pbr': float(pbr) if pd.notna(pbr) else None,
+                        'per': float(per) if pd.notna(per) else None,
+                        'ev_ebitda': float(ev_ebitda) if pd.notna(ev_ebitda) else None
+                    }
+                    print(f"{key}: PBR={pbr:.2f if pd.notna(pbr) else 'N/A'}, PER={per:.2f if pd.notna(per) else 'N/A'}, EV/EBITDA={ev_ebitda:.2f if pd.notna(ev_ebitda) else 'N/A'}")
+            
+            except Exception as e:
+                print(f"{key} 밸류에이션 계산 오류: {e}")
+                continue
+        
+        print(f"밸류에이션 데이터 조회 완료: 총 {len(valuation_data)}개 분기")
+        return valuation_data
+        
+    except Exception as e:
+        print(f"밸류에이션 데이터 조회 오류: {e}")
+        import traceback
+        traceback.print_exc()
+        return {}
+
+def save_valuation_to_database(stock_code, company_name, valuation_data):
+    """PBR, PER, EV/EBITDA 데이터를 데이터베이스에 저장합니다."""
+    try:
+        print(f"[DEBUG SAVE] Starting save for {stock_code}, data count: {len(valuation_data)}")
+        current_date = datetime.now()
+        cache_year = current_date.year
+        cache_month = current_date.month
+        
+        table_name = 'stock_valuation_data'
+        
+        saved_count = 0
+        skipped_count = 0
+        
+        for quarter_key, values in valuation_data.items():
+            try:
+                # quarter_key에서 년도와 분기 추출 (예: "2024Q3" -> 2024, 3)
+                year_str, quarter_str = quarter_key.split('Q')
+                year = int(year_str)
+                quarter = int(quarter_str)
+                
+                print(f"[DEBUG SAVE] Processing {quarter_key}: PBR={values.get('pbr')}, PER={values.get('per')}, EV/EBITDA={values.get('ev_ebitda')}")
+                
+                # 기본키 존재 여부 확인
+                existing = supabase.table(table_name).select('id').eq('stock_code', stock_code).eq('year', year).eq('quarter', quarter).execute()
+                
+                if existing.data:
+                    # 데이터가 이미 존재하면 건너뛰기
+                    skipped_count += 1
+                    print(f"밸류에이션 데이터가 이미 존재함: {stock_code} {year}Q{quarter}")
+                    continue
+                
+                # 밸류에이션 데이터 저장
+                record = {
+                    'stock_code': stock_code,
+                    'company_name': company_name,
+                    'year': year,
+                    'quarter': quarter,
+                    'pbr': float(values['pbr']) if values.get('pbr') is not None else None,
+                    'per': float(values['per']) if values.get('per') is not None else None,
+                    'ev_ebitda': float(values['ev_ebitda']) if values.get('ev_ebitda') is not None else None,
+                    'cache_year': cache_year,
+                    'cache_month': cache_month,
+                    'last_updated': current_date.isoformat()
+                }
+                
+                print(f"[DEBUG SAVE] Record to insert: {record}")
+                
+                supabase.table(table_name).insert(record).execute()
+                saved_count += 1
+                print(f"새 밸류에이션 데이터 저장: {stock_code} {year}Q{quarter}")
+                
+            except Exception as e:
+                print(f"밸류에이션 데이터베이스 처리 오류: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        print(f"밸류에이션 데이터베이스 저장 완료: {stock_code} (저장 개수: {saved_count}개, 건너뛰기: {skipped_count}개)")
+        return True
+        
+    except Exception as e:
+        print(f"밸류에이션 데이터베이스 저장 오류: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def get_valuation_database_data(stock_code, period=5):
+    """밸류에이션 데이터베이스에서 차트용 데이터 조회"""
+    try:
+        current_year = datetime.now().year
+        start_year = current_year - period
+        
+        table_name = 'stock_valuation_data'
+        
+        # 기간 내 데이터 조회
+        result = supabase.table(table_name).select('*').eq('stock_code', stock_code).gte('year', start_year).order('year', desc=False).order('quarter', desc=False).execute()
+        
+        return result.data if result.data else []
+        
+    except Exception as e:
+        print(f"밸류에이션 데이터베이스 조회 오류: {e}")
+        return []
+
+def check_valuation_database_data(stock_code):
+    """밸류에이션 데이터베이스에서 현재 달 데이터 확인"""
+    try:
+        current_date = datetime.now()
+        current_year = current_date.year
+        current_month = current_date.month
+        
+        table_name = 'stock_valuation_data'
+        
+        # 현재 달 데이터 조회
+        result = supabase.table(table_name).select('*').eq('stock_code', stock_code).eq('cache_year', current_year).eq('cache_month', current_month).execute()
+        
+        if result.data:
+            return True, result.data
+        else:
+            return False, []
+            
+    except Exception as e:
+        print(f"밸류에이션 데이터베이스 조회 오류: {e}")
+        return False, []
+
 def check_price_database_data(stock_code):
     """주가 데이터베이스에서 현재 달 데이터 확인"""
     try:
@@ -1651,6 +1904,22 @@ def clear_cash_cache_data_for_ticker(ticker, cache_year, cache_month):
         
     except Exception as e:
         print(f"현금성자산 캐시 데이터 삭제 오류: {e}")
+        return False, 0
+
+def clear_valuation_cache_data_for_ticker(ticker, cache_year, cache_month):
+    """특정 종목의 밸류에이션 데이터에서 동일한 cache_year, cache_month를 가진 데이터 삭제"""
+    try:
+        table_name = 'stock_valuation_data'
+        
+        # 특정 종목의 동일한 cache_year, cache_month를 가진 데이터 삭제
+        delete_result = supabase.table(table_name).delete().eq('stock_code', ticker).eq('cache_year', cache_year).eq('cache_month', cache_month).execute()
+        deleted_count = len(delete_result.data) if delete_result.data else 0
+        
+        print(f"밸류에이션 캐시 데이터 삭제 완료: {ticker} {cache_year}년 {cache_month}월 데이터 {deleted_count}개 삭제")
+        return True, deleted_count
+        
+    except Exception as e:
+        print(f"밸류에이션 캐시 데이터 삭제 오류: {e}")
         return False, 0
 
 def save_price_to_database(stock_code, company_name, quarterly_data):
@@ -2393,6 +2662,61 @@ def format_cash_chart_data(data, period, ticker=None):
         print(f"[DEBUG FORMAT] format_chart_data_by_period returned None")
     return None
 
+def format_valuation_chart_data(data, period, ticker=None):
+    """PBR, PER, EV/EBITDA 차트용 데이터 포맷팅 - 3개 라인 반환"""
+    print(f"[DEBUG FORMAT] Formatting valuation chart data for {ticker}, period={period}, data_count={len(data)}")
+    print(f"[DEBUG FORMAT] Sample data: {data[:2] if len(data) >= 2 else data}")
+    
+    try:
+        current_year = datetime.now().year
+        start_year = current_year - period
+        
+        # 표준 라벨 생성 (2022Q1, 2022Q2, ..., 2025Q4)
+        standard_labels = generate_standard_labels(period)
+        
+        # 각 지표별 값 초기화
+        pbr_values = []
+        per_values = []
+        ev_ebitda_values = []
+        
+        # 데이터를 딕셔너리로 변환
+        data_dict = {}
+        for item in data:
+            year = item['year']
+            quarter = item['quarter']
+            key = f"{year}Q{quarter}"
+            data_dict[key] = item
+        
+        # 표준 라벨에 맞춰 데이터 채우기
+        for label in standard_labels:
+            if label in data_dict:
+                item = data_dict[label]
+                pbr_values.append(round(item['pbr'], 2) if item.get('pbr') is not None else 0)
+                per_values.append(round(item['per'], 2) if item.get('per') is not None else 0)
+                ev_ebitda_values.append(round(item['ev_ebitda'], 2) if item.get('ev_ebitda') is not None else 0)
+            else:
+                pbr_values.append(0)
+                per_values.append(0)
+                ev_ebitda_values.append(0)
+        
+        print(f"[DEBUG FORMAT] Result labels: {standard_labels}")
+        print(f"[DEBUG FORMAT] PBR values: {pbr_values}")
+        print(f"[DEBUG FORMAT] PER values: {per_values}")
+        print(f"[DEBUG FORMAT] EV/EBITDA values: {ev_ebitda_values}")
+        
+        return {
+            'labels': standard_labels,
+            'pbr_values': pbr_values,
+            'per_values': per_values,
+            'ev_ebitda_values': ev_ebitda_values
+        }
+        
+    except Exception as e:
+        print(f"[DEBUG FORMAT] Error formatting valuation chart data: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
 # ============================================================================
 # 향후 추가될 항목들을 위한 표준 차트 포맷팅 함수 예시
 # ============================================================================
@@ -2506,7 +2830,7 @@ def get_stock_basic_info(symbol):
         # yfinance를 사용한 주식 기본 정보 조회
         import yfinance as yf
         
-        print(f"📊 주식 정보 조회 시작: {symbol}")
+        print(f"[INFO] 주식 정보 조회 시작: {symbol}")
         
         # Rate limiting 방지를 위한 지연
         time.sleep(random.uniform(1, 3))
@@ -2518,7 +2842,7 @@ def get_stock_basic_info(symbol):
         
         # info가 비어있거나 유효하지 않은 경우 확인
         if not info or len(info) == 0:
-            print(f"⚠️  {symbol}: info가 비어있습니다. 기본값 사용")
+            print(f"[WARNING] {symbol}: info가 비어있습니다. 기본값 사용")
             # 기본 정보라도 제공
             return {
                 'name': symbol,
@@ -2537,11 +2861,11 @@ def get_stock_basic_info(symbol):
             'current_price': info.get('currentPrice', info.get('regularMarketPrice', 0))
         }
         
-        print(f"✅ {symbol}: 주식 정보 조회 성공 - {result['name']}")
+        print(f"[SUCCESS] {symbol}: 주식 정보 조회 성공 - {result['name']}")
         return result
         
     except Exception as e:
-        print(f"❌ 주식 기본 정보 조회 오류 ({symbol}): {e}")
+        print(f"[ERROR] 주식 기본 정보 조회 오류 ({symbol}): {e}")
         import traceback
         traceback.print_exc()
         
@@ -7320,6 +7644,150 @@ def refresh_stock_cash():
         print(f"현금성자산 새로고침 오류: {e}")
         return jsonify({'error': '현금성자산 새로고침 중 오류가 발생했습니다.'}), 500
 
+@app.route('/api/stock/valuation/check', methods=['POST'])
+def check_stock_valuation():
+    """밸류에이션 데이터 캐시 확인 및 처리"""
+    try:
+        data = request.json
+        ticker = data.get('stock_code', '').strip()
+        period = 1  # 1년 고정 (Yahoo Finance는 최근 5분기만 제공)
+        
+        # 공백 제거
+        ticker = ''.join(ticker.split())
+        
+        print(f"밸류에이션 캐시 확인 요청: ticker='{ticker}', period={period}")
+        
+        if not ticker:
+            return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
+        
+        # 현재 날짜 기준 캐시 확인
+        current_date = datetime.now()
+        cache_year = current_date.year
+        cache_month = current_date.month
+        
+        # 밸류에이션 데이터베이스에서 현재 달 데이터 확인
+        has_current_month_data, db_data = check_valuation_database_data(ticker)
+        
+        if has_current_month_data and db_data:
+            # 캐시된 데이터가 있으면 바로 반환
+            print(f"캐시된 밸류에이션 데이터 사용: {ticker}")
+            chart_data = format_valuation_chart_data(db_data, period, ticker)
+            
+            if chart_data is None:
+                return jsonify({'error': '차트 데이터 포맷팅 오류'}), 500
+            
+            return jsonify({
+                'success': True,
+                'type': 'valuation',
+                'chart_data': chart_data,
+                'period': period,
+                'cached': True,
+                'message': '캐시된 밸류에이션 데이터를 사용합니다.'
+            })
+        else:
+            # 캐시된 데이터가 없으면 Yahoo Finance에서 조회
+            print(f"Yahoo Finance에서 밸류에이션 데이터 조회: {ticker}")
+            
+            valuation_data = get_stock_valuation_data(ticker, 10)
+            
+            if not valuation_data:
+                return jsonify({'error': '밸류에이션 데이터를 가져올 수 없습니다.'}), 400
+            
+            # 회사명 조회 (주가 데이터에서)
+            price_data = get_price_database_data(ticker, period)
+            company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+            
+            # 밸류에이션 데이터베이스에 저장
+            save_valuation_to_database(ticker, company_name, valuation_data)
+            
+            # 저장된 데이터로 차트 생성
+            db_data = get_valuation_database_data(ticker, period)
+            chart_data = format_valuation_chart_data(db_data, period, ticker)
+            
+            if chart_data is None:
+                return jsonify({'error': '차트 데이터 포맷팅 오류'}), 500
+            
+            return jsonify({
+                'success': True,
+                'type': 'valuation',
+                'chart_data': chart_data,
+                'period': period,
+                'cached': False,
+                'message': 'Yahoo Finance에서 최신 밸류에이션 데이터를 가져왔습니다.'
+            })
+        
+    except Exception as e:
+        print(f"밸류에이션 캐시 확인 오류: {e}")
+        return jsonify({'error': '밸류에이션 데이터 처리 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/stock/valuation/refresh', methods=['POST'])
+def refresh_stock_valuation():
+    """밸류에이션 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    try:
+        data = request.json
+        ticker = data.get('stock_code', '').strip()
+        period = 1  # 1년 고정 (Yahoo Finance는 최근 5분기만 제공)
+        
+        # 공백 제거
+        ticker = ''.join(ticker.split())
+        
+        print(f"밸류에이션 Refresh 요청: ticker='{ticker}', period={period}")
+        
+        if not ticker:
+            return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
+        
+        # 1. 해당 종목의 현재 달 데이터만 삭제
+        current_date = datetime.now()
+        cache_year = current_date.year
+        cache_month = current_date.month
+        
+        # 특정 종목의 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_valuation_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"밸류에이션 캐시 데이터 삭제 실패: {ticker}")
+        
+        print(f"Yahoo Finance에서 최신 밸류에이션 데이터 조회: {ticker}")
+        
+        # 2. Yahoo Finance에서 밸류에이션 데이터 조회
+        valuation_data = get_stock_valuation_data(ticker, 10)
+        
+        if not valuation_data:
+            return jsonify({'error': '밸류에이션 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 3. 회사명 조회 (주가 데이터에서)
+        price_data = get_price_database_data(ticker, period)
+        company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 4. 밸류에이션 데이터베이스에 저장
+        save_success = save_valuation_to_database(ticker, company_name, valuation_data)
+        if not save_success:
+            return jsonify({'error': '밸류에이션 데이터 저장에 실패했습니다.'}), 500
+        
+        # 5. 밸류에이션 데이터베이스에서 차트용 데이터 조회
+        db_data = get_valuation_database_data(ticker, period)
+        
+        if not db_data:
+            return jsonify({'error': '밸류에이션 데이터가 없습니다.'}), 400
+        
+        # 6. 밸류에이션 차트용 데이터 포맷팅
+        chart_data = format_valuation_chart_data(db_data, period, ticker)
+        
+        if chart_data is None:
+            return jsonify({'error': '차트 데이터 포맷팅 오류'}), 500
+        
+        return jsonify({
+            'success': True,
+            'type': 'valuation',
+            'chart_data': chart_data,
+            'period': period,
+            'deleted_count': deleted_count,
+            'message': f'밸류에이션 데이터 {deleted_count}개를 삭제하고 최신 데이터로 새로고침했습니다.'
+        })
+        
+    except Exception as e:
+        print(f"밸류에이션 새로고침 오류: {e}")
+        return jsonify({'error': '밸류에이션 새로고침 중 오류가 발생했습니다.'}), 500
+
 @app.route('/api/stocks', methods=['POST'])
 def add_stock():
     """새 주식 추가"""
@@ -7431,5 +7899,5 @@ if __name__ == '__main__':
     check_and_create_tables()
     # Render는 PORT 환경 변수를 제공합니다
     port = int(os.getenv('PORT', 5000))
-    print(f"🚀 서버 시작: 포트 {port}")
+    print(f"[INFO] 서버 시작: 포트 {port}")
     app.run(debug=True, host='0.0.0.0', port=port)

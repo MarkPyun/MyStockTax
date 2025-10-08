@@ -455,83 +455,92 @@
             // 1. 국채금리 데이터 로딩 (0% → 25%)
             updateProgress(15, '미국 국채금리 데이터를 처리하고 있습니다...', 0);
             const treasurySuccess = await processTreasuryData();
-            if (!treasurySuccess) {
-                showError('국채금리 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (treasurySuccess) {
+                updateProgress(25, '미국 국채금리 데이터 처리 완료', 1);
+            } else {
+                console.log('국채금리 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(25, '국채금리 데이터 실패 (refresh 버튼으로 재시도 가능)', 1);
             }
-            updateProgress(25, '미국 국채금리 데이터 처리 완료', 1);
             
             // 2. CPI 데이터 로딩 (25% → 50%)
             updateProgress(40, 'CPI 데이터를 처리하고 있습니다...', 1);
             const cpiSuccess = await processCPIData();
-            if (!cpiSuccess) {
-                showError('CPI 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (cpiSuccess) {
+                updateProgress(50, 'CPI 데이터 처리 완료', 2);
+            } else {
+                console.log('CPI 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(50, 'CPI 데이터 실패 (refresh 버튼으로 재시도 가능)', 2);
             }
-            updateProgress(50, 'CPI 데이터 처리 완료', 2);
             
             // 3. 제조업 생산지수 데이터 로딩 (50% → 75%)
             updateProgress(65, '제조업 생산지수 데이터를 처리하고 있습니다...', 2);
             const indproSuccess = await processIndustrialProductionData();
-            if (!indproSuccess) {
-                showError('제조업 생산지수 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (indproSuccess) {
+                updateProgress(75, '제조업 생산지수 데이터 처리 완료', 3);
+            } else {
+                console.log('제조업 생산지수 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(75, '제조업 생산지수 데이터 실패 (refresh 버튼으로 재시도 가능)', 3);
             }
-            updateProgress(75, '제조업 생산지수 데이터 처리 완료', 3);
             
             // 4. 실업률 데이터 로딩 (75% → 85%)
             updateProgress(80, '실업률 데이터를 처리하고 있습니다...', 3);
             const unemploymentSuccess = await processUnemploymentData();
-            if (!unemploymentSuccess) {
-                showError('실업률 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (unemploymentSuccess) {
+                updateProgress(85, '실업률 데이터 처리 완료', 4);
+            } else {
+                console.log('실업률 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(85, '실업률 데이터 실패 (refresh 버튼으로 재시도 가능)', 4);
             }
-            updateProgress(85, '실업률 데이터 처리 완료', 4);
             
             // 5. GDP 데이터 로딩 (85% → 87%)
             updateProgress(86, 'GDP 데이터를 처리하고 있습니다...', 4);
             const gdpSuccess = await processGDPData();
-            if (!gdpSuccess) {
-                showError('GDP 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (gdpSuccess) {
+                updateProgress(87, 'GDP 데이터 처리 완료', 5);
+            } else {
+                console.log('GDP 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(87, 'GDP 데이터 실패 (refresh 버튼으로 재시도 가능)', 5);
             }
-            updateProgress(87, 'GDP 데이터 처리 완료', 5);
             
             // 6. S&P 500 데이터 로딩 (87% → 92%)
             updateProgress(90, 'S&P 500 데이터를 처리하고 있습니다...', 5);
             const sp500Success = await processSP500Data();
-            if (!sp500Success) {
-                showError('S&P 500 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (sp500Success) {
+                updateProgress(92, 'S&P 500 데이터 처리 완료', 6);
+            } else {
+                console.log('S&P 500 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(92, 'S&P 500 데이터 실패 (refresh 버튼으로 재시도 가능)', 6);
             }
-            updateProgress(92, 'S&P 500 데이터 처리 완료', 6);
             
             // 7. 버핏지수 데이터 로딩 (92% → 94%)
             updateProgress(93, '버핏지수 데이터를 처리하고 있습니다...', 6);
             const buffettSuccess = await processBuffettIndicatorData();
-            if (!buffettSuccess) {
-                showError('버핏지수 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (buffettSuccess) {
+                updateProgress(94, '버핏지수 데이터 처리 완료', 7);
+            } else {
+                console.log('버핏지수 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(94, '버핏지수 데이터 실패 (refresh 버튼으로 재시도 가능)', 7);
             }
-            updateProgress(94, '버핏지수 데이터 처리 완료', 7);
             
             // 8. 주택재고량 데이터 로딩 (94% → 96%)
             updateProgress(95, '주택재고량 데이터를 처리하고 있습니다...', 7);
             const housingSuccess = await processHousingInventoryData();
-            if (!housingSuccess) {
-                showError('주택재고량 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (housingSuccess) {
+                updateProgress(96, '주택재고량 데이터 처리 완료', 8);
+            } else {
+                console.log('주택재고량 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(96, '주택재고량 데이터 실패 (refresh 버튼으로 재시도 가능)', 8);
             }
-            updateProgress(96, '주택재고량 데이터 처리 완료', 8);
             
             // 9. 모기지 연체율 데이터 로딩 (96% → 100%)
             updateProgress(98, '모기지 연체율 데이터를 처리하고 있습니다...', 8);
             const mortgageSuccess = await processMortgageDelinquencyData();
-            if (!mortgageSuccess) {
-                showError('모기지 연체율 데이터를 가져오는 중 오류가 발생했습니다.');
-                return;
+            if (mortgageSuccess) {
+                updateProgress(100, '모든 데이터 로딩 완료!', 9);
+            } else {
+                console.log('모기지 연체율 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(100, '모기지 연체율 데이터 실패 (refresh 버튼으로 재시도 가능)', 9);
             }
-            updateProgress(100, '모든 데이터 로딩 완료!', 9);
             
             // 차트 표시
             showChart();
@@ -1467,12 +1476,11 @@
                 }
             } else {
                 document.getElementById('treasuryChartLoading').style.display = 'none';
-                showError('국채금리 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('국채금리 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('treasuryChartLoading').style.display = 'none';
             console.error('국채금리 새로고침 오류:', error);
-            showError('국채금리 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1502,12 +1510,11 @@
                 }
             } else {
                 document.getElementById('cpiChartLoading').style.display = 'none';
-                showError('CPI 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('CPI 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('cpiChartLoading').style.display = 'none';
             console.error('CPI 새로고침 오류:', error);
-            showError('CPI 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1537,12 +1544,11 @@
                 }
             } else {
                 document.getElementById('indproChartLoading').style.display = 'none';
-                showError('제조업 생산지수 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('제조업 생산지수 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('indproChartLoading').style.display = 'none';
             console.error('제조업 생산지수 새로고침 오류:', error);
-            showError('제조업 생산지수 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1572,12 +1578,11 @@
                 }
             } else {
                 document.getElementById('unemploymentChartLoading').style.display = 'none';
-                showError('실업률 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('실업률 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('unemploymentChartLoading').style.display = 'none';
             console.error('실업률 새로고침 오류:', error);
-            showError('실업률 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1607,12 +1612,11 @@
                 }
             } else {
                 document.getElementById('gdpChartLoading').style.display = 'none';
-                showError('GDP 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('GDP 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('gdpChartLoading').style.display = 'none';
             console.error('GDP 새로고침 오류:', error);
-            showError('GDP 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1642,12 +1646,11 @@
                 }
             } else {
                 document.getElementById('sp500ChartLoading').style.display = 'none';
-                showError('S&P 500 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('S&P 500 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('sp500ChartLoading').style.display = 'none';
             console.error('S&P 500 새로고침 오류:', error);
-            showError('S&P 500 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1677,12 +1680,11 @@
                 }
             } else {
                 document.getElementById('buffettIndicatorChartLoading').style.display = 'none';
-                showError('버핏지수 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('버핏지수 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('buffettIndicatorChartLoading').style.display = 'none';
             console.error('버핏지수 새로고침 오류:', error);
-            showError('버핏지수 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1712,12 +1714,11 @@
                 }
             } else {
                 document.getElementById('housingInventoryChartLoading').style.display = 'none';
-                showError('주택재고량 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('주택재고량 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('housingInventoryChartLoading').style.display = 'none';
             console.error('주택재고량 새로고침 오류:', error);
-            showError('주택재고량 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     
@@ -1826,12 +1827,11 @@
                 }
             } else {
                 document.getElementById('mortgageDelinquencyChartLoading').style.display = 'none';
-                showError('모기지 연체율 데이터를 새로고침하는 중 오류가 발생했습니다.');
+                console.log('모기지 연체율 새로고침 실패 - 차트는 유지');
             }
         } catch (error) {
             document.getElementById('mortgageDelinquencyChartLoading').style.display = 'none';
             console.error('모기지 연체율 새로고침 오류:', error);
-            showError('모기지 연체율 데이터를 새로고침하는 중 오류가 발생했습니다.');
         }
     }
     

@@ -273,3 +273,24 @@ CREATE INDEX IF NOT EXISTS idx_economy_buffett_cache ON economy_buffett_data(cac
 CREATE INDEX IF NOT EXISTS idx_economy_mortgage_delinquency_year ON economy_mortgage_delinquency_data(year);
 CREATE INDEX IF NOT EXISTS idx_economy_mortgage_delinquency_cache ON economy_mortgage_delinquency_data(cache_year, cache_month);
 
+-- PBR, PER, EV/EBITDA 밸류에이션 지표 데이터
+
+            CREATE TABLE IF NOT EXISTS stock_valuation_data (
+                id SERIAL PRIMARY KEY,
+                stock_code VARCHAR(20) NOT NULL,
+                company_name VARCHAR(200),
+                year INTEGER NOT NULL,
+                quarter INTEGER NOT NULL,
+                pbr DECIMAL(10,4),
+                per DECIMAL(10,4),
+                ev_ebitda DECIMAL(10,4),
+                cache_year INTEGER,
+                cache_month INTEGER,
+                last_updated TIMESTAMP DEFAULT NOW(),
+                UNIQUE(stock_code, year, quarter)
+            );
+        
+
+CREATE INDEX IF NOT EXISTS idx_stock_valuation_code_year ON stock_valuation_data(stock_code, year);
+CREATE INDEX IF NOT EXISTS idx_stock_valuation_cache ON stock_valuation_data(cache_year, cache_month);
+

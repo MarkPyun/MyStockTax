@@ -222,6 +222,28 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- PBR, PER, EV/EBITDA 차트 -->
+                <div class="mb-4">
+                    <h4 class="mb-3">
+                        9. PBR, PER, EV/EBITDA 
+                        <button class="btn btn-sm btn-outline-success ms-2" onclick="refreshValuationData()" title="밸류에이션 데이터 새로고침">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </h4>
+                    <div class="card" style="position: relative;">
+                        <div class="card-body">
+                            <canvas id="valuationChart" width="400" height="200"></canvas>
+                        </div>
+                        <!-- 밸류에이션 차트 개별 로딩 오버레이 -->
+                        <div id="valuationChartLoading" class="chart-loading-overlay" style="display: none;">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                                <p class="mb-0"><small id="valuationLoadingText">새로고침 중...</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- 로딩 메시지 및 Progress Bar -->
@@ -271,6 +293,9 @@
                         <span id="step9" class="text-muted">
                             <i class="fas fa-circle" style="font-size: 5px;"></i> 현금성자산
                         </span>
+                        <span id="step10" class="text-muted">
+                            <i class="fas fa-circle" style="font-size: 5px;"></i> PBR/PER/EV
+                        </span>
                     </div>
                 </div>
             </div>
@@ -287,8 +312,9 @@
 
 {% block extra_js %}
 <script>
-    // 전역 변수: 현재 조회 중인 종목의 시장 정보
+    // 전역 변수: 현재 조회 중인 종목의 시장 정보 및 검색어
     let currentMarket = null;
+    let currentSearchTerm = null;
     
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
@@ -325,12 +351,12 @@
     
     // 개별 데이터 새로고침 기능 - 해당 차트만 로딩 표시
     async function refreshPriceData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -368,12 +394,12 @@
     }
 
     async function refreshRevenueData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -411,12 +437,12 @@
     }
 
     async function refreshOperatingIncomeData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -454,12 +480,12 @@
     }
 
     async function refreshNetProfitData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -497,12 +523,12 @@
     }
 
     async function refreshTotalDebtData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -540,12 +566,12 @@
     }
 
     async function refreshCurrentLiabilitiesData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -583,12 +609,12 @@
     }
 
     async function refreshInterestExpenseData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -626,12 +652,12 @@
     }
 
     async function refreshCashData() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
         if (!searchTerm) {
-            errorMessage.textContent = '정보를 입력해주세요!';
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
             errorMessage.style.display = 'block';
             return;
         }
@@ -665,6 +691,48 @@
             hideChartLoading('cashChart');
             console.error('현금성자산 새로고침 오류:', error);
             showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
+        }
+    }
+
+    async function refreshValuationData() {
+        const searchTerm = currentSearchTerm || document.getElementById('mainSearchInput').value.trim();
+        const period = 4; // 4년 고정
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (!searchTerm) {
+            errorMessage.textContent = '먼저 주식을 검색해주세요!';
+            errorMessage.style.display = 'block';
+            return;
+        }
+        
+        errorMessage.style.display = 'none';
+        
+        // 밸류에이션 차트에만 로딩 표시
+        showChartLoading('valuationChart', '새로고침 중...');
+        
+        try {
+            const response = await fetch('/api/stock/valuation/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock_code: searchTerm, period: period })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                displayValuationChart(result.chart_data);
+                hideChartLoading('valuationChart');
+                
+                if (result.deleted_count > 0) {
+                    showAlert(result.message || `밸류에이션 데이터 ${result.deleted_count}개를 새로고침했습니다.`, 'success');
+                }
+            } else {
+                hideChartLoading('valuationChart');
+                console.log('밸류에이션 새로고침 실패 - 차트는 유지');
+            }
+        } catch (error) {
+            hideChartLoading('valuationChart');
+            console.error('밸류에이션 새로고침 오류:', error);
         }
     }
 
@@ -712,6 +780,9 @@
         if (stepNumber >= 9) {
             document.getElementById('step9').innerHTML = '<i class="fas fa-check-circle text-success"></i> 현금성자산';
         }
+        if (stepNumber >= 10) {
+            document.getElementById('step10').innerHTML = '<i class="fas fa-check-circle text-success"></i> PBR/PER/EV';
+        }
     }
     
     // Progress Bar 초기화 함수
@@ -726,11 +797,12 @@
         document.getElementById('step7').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 유동부채';
         document.getElementById('step8').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 이자비용';
         document.getElementById('step9').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> 현금성자산';
+        document.getElementById('step10').innerHTML = '<i class="fas fa-circle" style="font-size: 5px;"></i> PBR/PER/EV';
     }
 
     // 검색 기능 - 순차적 로딩 (캐시 확인 방식, 4년 고정)
     async function performSearch() {
-        const searchTerm = document.getElementById('mainSearchInput').value.trim();
+        let searchTerm = document.getElementById('mainSearchInput').value.trim();
         const period = 4; // 4년 고정
         const errorMessage = document.getElementById('errorMessage');
         
@@ -748,6 +820,11 @@
             errorMessage.textContent = '정확한 정보를 입력하세요!';
             errorMessage.style.display = 'block';
             return;
+        }
+        
+        // 영문인 경우 자동으로 대문자 변환 (미국 주식)
+        if (isEnglishOnly) {
+            searchTerm = searchTerm.toUpperCase();
         }
         
         errorMessage.style.display = 'none';
@@ -778,88 +855,99 @@
             
             // 회사명 및 시장 정보 저장 (차트는 아직 표시 안함)
             currentMarket = searchResult.market;
+            currentSearchTerm = searchTerm;
             
             // 2. 주가 데이터 순차적 로딩 (33% → 66%)
             updateProgress(40, '주가 데이터를 처리하고 있습니다...', 1);
             const priceSuccess = await processPriceData(searchTerm, period);
-            if (!priceSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (priceSuccess) {
+                updateProgress(66, '주가 데이터 처리 완료', 2);
+            } else {
+                console.log('주가 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(66, '주가 데이터 실패 (refresh 버튼으로 재시도 가능)', 2);
             }
-            updateProgress(66, '주가 데이터 처리 완료', 2);
             
             // 3. 매출 데이터 순차적 로딩 (66% → 75%)
             updateProgress(70, '매출 데이터를 처리하고 있습니다...', 2);
             const revenueSuccess = await processRevenueData(searchTerm, period);
-            if (!revenueSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (revenueSuccess) {
+                updateProgress(75, '매출 데이터 처리 완료', 3);
+            } else {
+                console.log('매출 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(75, '매출 데이터 실패 (refresh 버튼으로 재시도 가능)', 3);
             }
-            updateProgress(75, '매출 데이터 처리 완료', 3);
             
             // 4. 영업이익 데이터 순차적 로딩 (75% → 85%)
             updateProgress(80, '영업이익 데이터를 처리하고 있습니다...', 3);
             const operatingIncomeSuccess = await processOperatingIncomeData(searchTerm, period);
-            if (!operatingIncomeSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (operatingIncomeSuccess) {
+                updateProgress(85, '영업이익 데이터 처리 완료', 4);
+            } else {
+                console.log('영업이익 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(85, '영업이익 데이터 실패 (refresh 버튼으로 재시도 가능)', 4);
             }
-            updateProgress(85, '영업이익 데이터 처리 완료', 4);
             
             // 5. 당기순이익 데이터 순차적 로딩 (85% → 92%)
             updateProgress(88, '당기순이익 데이터를 처리하고 있습니다...', 4);
             const netProfitSuccess = await processNetProfitData(searchTerm, period);
-            if (!netProfitSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (netProfitSuccess) {
+                updateProgress(92, '당기순이익 데이터 처리 완료', 5);
+            } else {
+                console.log('당기순이익 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(92, '당기순이익 데이터 실패 (refresh 버튼으로 재시도 가능)', 5);
             }
-            updateProgress(92, '당기순이익 데이터 처리 완료', 5);
             
             // 6. 총부채 데이터 순차적 로딩 (92% → 95%)
             updateProgress(93, '총부채 데이터를 처리하고 있습니다...', 5);
             const totalDebtSuccess = await processTotalDebtData(searchTerm, period);
-            if (!totalDebtSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (totalDebtSuccess) {
+                updateProgress(95, '총부채 데이터 처리 완료', 6);
+            } else {
+                console.log('총부채 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(95, '총부채 데이터 실패 (refresh 버튼으로 재시도 가능)', 6);
             }
-            updateProgress(95, '총부채 데이터 처리 완료', 6);
             
             // 7. 유동부채 데이터 순차적 로딩 (95% → 97%)
             updateProgress(96, '유동부채 데이터를 처리하고 있습니다...', 6);
             const currentLiabilitiesSuccess = await processCurrentLiabilitiesData(searchTerm, period);
-            if (!currentLiabilitiesSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (currentLiabilitiesSuccess) {
+                updateProgress(97, '유동부채 데이터 처리 완료', 7);
+            } else {
+                console.log('유동부채 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(97, '유동부채 데이터 실패 (refresh 버튼으로 재시도 가능)', 7);
             }
-            updateProgress(97, '유동부채 데이터 처리 완료', 7);
             
             // 8. 이자비용 데이터 순차적 로딩 (97% → 98%)
             updateProgress(97.5, '이자비용 데이터를 처리하고 있습니다...', 7);
             const interestExpenseSuccess = await processInterestExpenseData(searchTerm, period);
-            if (!interestExpenseSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (interestExpenseSuccess) {
+                updateProgress(98, '이자비용 데이터 처리 완료', 8);
+            } else {
+                console.log('이자비용 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(98, '이자비용 데이터 실패 (refresh 버튼으로 재시도 가능)', 8);
             }
-            updateProgress(98, '이자비용 데이터 처리 완료', 8);
             
-            // 9. 현금성자산 데이터 순차적 로딩 (98% → 100%)
-            updateProgress(99, '현금성자산 데이터를 처리하고 있습니다...', 8);
+            // 9. 현금성자산 데이터 순차적 로딩 (98% → 99%)
+            updateProgress(98.5, '현금성자산 데이터를 처리하고 있습니다...', 8);
             const cashSuccess = await processCashData(searchTerm, period);
-            if (!cashSuccess) {
-                showError('입력한 정보가 잘못 되었거나 서버와 연결이 잘 안되고 있습니다. 다시 시도 하시거나 관리자에게 문의 바랍니다!');
-                hideChart();
-                return;
+            if (cashSuccess) {
+                updateProgress(99, '현금성자산 데이터 처리 완료', 9);
+            } else {
+                console.log('현금성자산 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(99, '현금성자산 데이터 실패 (refresh 버튼으로 재시도 가능)', 9);
             }
-            updateProgress(100, '모든 데이터 로딩 완료!', 9);
             
-            // 모든 데이터가 성공적으로 로드된 후에만 차트 컨테이너 표시
+            // 10. 밸류에이션 데이터 순차적 로딩 (99% → 100%)
+            updateProgress(99.5, 'PBR/PER/EV 데이터를 처리하고 있습니다...', 9);
+            const valuationSuccess = await processValuationData(searchTerm, period);
+            if (valuationSuccess) {
+                updateProgress(100, '모든 데이터 로딩 완료!', 10);
+            } else {
+                console.log('밸류에이션 데이터 로드 실패 - 빈 차트로 표시');
+                updateProgress(100, '밸류에이션 데이터 실패 (refresh 버튼으로 재시도 가능)', 10);
+            }
+            
+            // 성공/실패 여부와 관계없이 차트 컨테이너 표시 (실패한 차트는 빈 상태)
             showChart();
             updateCompanyHeader(searchResult.company_name, searchResult.stock_code, searchResult.market);
             
@@ -1070,6 +1158,31 @@
             }
         } catch (error) {
             console.error('현금성자산 데이터 처리 오류:', error);
+            return false;
+        }
+    }
+    
+    // 밸류에이션 데이터 처리 함수 (캐시 확인)
+    async function processValuationData(ticker, period) {
+        try {
+            const valuationResponse = await fetch('/api/stock/valuation/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stock_code: ticker, period: parseInt(period) })
+            });
+            
+            const valuationResult = await valuationResponse.json();
+            
+            if (valuationResult.success) {
+                displayValuationChart(valuationResult.chart_data);
+                console.log(valuationResult.message);
+                return true;
+            } else {
+                console.error('밸류에이션 데이터 처리 실패:', valuationResult.error);
+                return false;
+            }
+        } catch (error) {
+            console.error('밸류에이션 데이터 처리 오류:', error);
             return false;
         }
     }
@@ -1570,6 +1683,79 @@
         });
     }
 
+    function displayValuationChart(chartData) {
+        if (!chartData || !chartData.labels || chartData.labels.length === 0) {
+            console.error('밸류에이션 차트 데이터를 생성할 수 없습니다.');
+            return;
+        }
+        
+        console.log('밸류에이션 차트 데이터:', chartData);
+        
+        // 기존 밸류에이션 차트 제거
+        const existingChart = Chart.getChart('valuationChart');
+        if (existingChart) {
+            existingChart.destroy();
+        }
+        
+        // 밸류에이션 차트 생성 (3개 라인: PBR, PER, EV/EBITDA)
+        const valuationCtx = document.getElementById('valuationChart').getContext('2d');
+        new Chart(valuationCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'PBR (Price to Book Ratio)',
+                        data: chartData.pbr_values,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'PER (Price to Earnings Ratio)',
+                        data: chartData.per_values,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'EV/EBITDA',
+                        data: chartData.ev_ebitda_values,
+                        borderColor: 'rgb(255, 205, 86)',
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        tension: 0.1,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'PBR, PER, EV/EBITDA'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Ratio'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+
     // 검색어 지우기
     function clearSearch() {
         // 입력 필드 초기화
@@ -1585,7 +1771,7 @@
         document.getElementById('emptyState').style.display = 'block';
         
         // 기존 차트들 제거
-        const existingCharts = ['priceChart', 'revenueChart', 'operatingIncomeChart', 'netProfitChart', 'totalDebtChart', 'currentLiabilitiesChart', 'interestExpenseChart', 'cashChart'];
+        const existingCharts = ['priceChart', 'revenueChart', 'operatingIncomeChart', 'netProfitChart', 'totalDebtChart', 'currentLiabilitiesChart', 'interestExpenseChart', 'cashChart', 'valuationChart'];
         existingCharts.forEach(chartId => {
             const existingChart = Chart.getChart(chartId);
             if (existingChart) {
