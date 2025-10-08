@@ -2502,20 +2502,50 @@ def get_stock_basic_info(symbol):
     try:
         # yfinance를 사용한 주식 기본 정보 조회
         import yfinance as yf
+        
+        print(f"📊 주식 정보 조회 시작: {symbol}")
         stock = yf.Ticker(symbol)
+        
+        # info 속성 접근 시도
         info = stock.info
         
-        return {
-            'name': info.get('longName', symbol),
+        # info가 비어있거나 유효하지 않은 경우 확인
+        if not info or len(info) == 0:
+            print(f"⚠️  {symbol}: info가 비어있습니다. 기본값 사용")
+            # 기본 정보라도 제공
+            return {
+                'name': symbol,
+                'sector': 'N/A',
+                'industry': 'N/A',
+                'market_cap': 0,
+                'current_price': 0
+            }
+        
+        # 정상적으로 데이터가 있는 경우
+        result = {
+            'name': info.get('longName', info.get('shortName', symbol)),
             'sector': info.get('sector', 'N/A'),
             'industry': info.get('industry', 'N/A'),
             'market_cap': info.get('marketCap', 0),
-            'current_price': info.get('currentPrice', 0)
+            'current_price': info.get('currentPrice', info.get('regularMarketPrice', 0))
         }
         
+        print(f"✅ {symbol}: 주식 정보 조회 성공 - {result['name']}")
+        return result
+        
     except Exception as e:
-        print(f"주식 기본 정보 조회 오류: {e}")
-        return None
+        print(f"❌ 주식 기본 정보 조회 오류 ({symbol}): {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # 에러가 발생해도 기본 정보는 반환
+        return {
+            'name': symbol,
+            'sector': 'N/A',
+            'industry': 'N/A',
+            'market_cap': 0,
+            'current_price': 0
+        }
 
 def get_stock_price_data(symbol, period):
     """주가 데이터 조회"""
@@ -7392,4 +7422,6 @@ def portfolio_summary():
 if __name__ == '__main__':
     # 로컬 개발 서버
     check_and_create_tables()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Render는 PORT 환경 변수를 제공합니다
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
