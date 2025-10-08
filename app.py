@@ -19,18 +19,35 @@ CORS(app)
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
-# 환경 변수 확인
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("⚠️ SUPABASE_URL 및 SUPABASE_KEY 환경 변수가 필요합니다. .env 파일을 확인하세요.")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 # FRED API 설정
 FRED_API_KEY = os.getenv('FRED_API_KEY')
-if not FRED_API_KEY:
-    raise ValueError("⚠️ FRED_API_KEY 환경 변수가 필요합니다. .env 파일을 확인하세요.")
 
-fred = Fred(api_key=FRED_API_KEY)
+# 환경 변수 확인 (로컬 개발 시에만 경고)
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("⚠️ WARNING: SUPABASE_URL 및 SUPABASE_KEY 환경 변수가 설정되지 않았습니다.")
+    print("   일부 기능이 제한될 수 있습니다.")
+
+if not FRED_API_KEY:
+    print("⚠️ WARNING: FRED_API_KEY 환경 변수가 설정되지 않았습니다.")
+    print("   경제 지표 기능이 제한될 수 있습니다.")
+
+# Supabase 클라이언트 생성 (환경 변수가 있을 때만)
+supabase = None
+fred = None
+
+try:
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print("✓ Supabase 연결 성공")
+except Exception as e:
+    print(f"⚠️ Supabase 연결 실패: {e}")
+
+try:
+    if FRED_API_KEY:
+        fred = Fred(api_key=FRED_API_KEY)
+        print("✓ FRED API 연결 성공")
+except Exception as e:
+    print(f"⚠️ FRED API 연결 실패: {e}")
 
 # 데이터베이스 자동 설정 모듈 임포트
 try:
@@ -43,6 +60,11 @@ except ImportError:
 
 def check_and_create_tables():
     """테이블 존재 여부를 확인하고 자동 생성 시도"""
+    
+    # Supabase가 초기화되지 않았으면 스킵
+    if not supabase:
+        print("[WARNING] Supabase 클라이언트가 초기화되지 않았습니다. 테이블 확인을 건너뜁니다.")
+        return
     
     if not DB_SETUP_AVAILABLE:
         # db_setup 모듈이 없으면 기존 방식 사용
@@ -7219,7 +7241,6 @@ def portfolio_summary():
     })
 
 if __name__ == '__main__':
+    # 로컬 개발 서버
+    check_and_create_tables()
     app.run(debug=True, host='0.0.0.0', port=5000)
-
-# Vercel용 WSGI 애플리케이션
-app.wsgi_app = app.wsgi_app
