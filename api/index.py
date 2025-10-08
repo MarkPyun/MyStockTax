@@ -8,21 +8,11 @@ import os
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
-print(f"[Vercel] Python version: {sys.version}")
-print(f"[Vercel] Project root: {project_root}")
-print(f"[Vercel] Python path: {sys.path[:3]}")
-
 # Flask 앱 임포트
-try:
-    from app import app
-    print("[Vercel] ✓ Flask app imported successfully")
-    
-    # Vercel은 이 변수를 찾습니다
-    handler = app
-    
-except Exception as e:
-    print(f"[Vercel] ✗ Error importing app: {e}")
-    import traceback
-    traceback.print_exc()
-    raise
+from app import app
+
+# Vercel의 WSGI 핸들러
+def handler(environ, start_response):
+    """WSGI application handler for Vercel"""
+    return app(environ, start_response)
 
