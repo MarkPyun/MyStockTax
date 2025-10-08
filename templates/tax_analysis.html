@@ -2,413 +2,901 @@
 
 {% block title %}MyStockTax - Tax 분석{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* 원본 스타일 유지 */
+    .tax-page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .tax-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .tax-header h1 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .tax-content {
+        padding: 30px;
+    }
+
+    .tax-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .tax-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s;
+    }
+
+    .tax-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .tax-card.active {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+
+    .tax-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .tax-card-header input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .tax-card-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .tax-info {
+        font-size: 0.9em;
+        color: #666;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .tax-input-group {
+        margin-top: 15px;
+        display: none;
+    }
+
+    .tax-card.active .tax-input-group {
+        display: block;
+    }
+
+    .tax-input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .tax-input-group input,
+    .tax-input-group select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
+
+    .tax-input-group input:focus,
+    .tax-input-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .calculate-section {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .calculate-btn {
+        padding: 15px 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .calculate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .result-section {
+        display: none;
+        margin-top: 30px;
+        animation: fadeIn 0.5s;
+    }
+
+    .result-section.show {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .result-summary h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    .result-summary .total-tax {
+        font-size: 2.5em;
+        font-weight: bold;
+        margin: 15px 0;
+    }
+
+    .monthly-schedule {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .month-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .month-card.has-tax {
+        border-left: 4px solid #667eea;
+    }
+
+    .month-title {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+
+    .tax-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .month-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        margin-top: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 6px;
+        font-weight: bold;
+    }
+
+    .detail-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .detail-section h3 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 1.4em;
+    }
+
+    .detail-item {
+        background: white;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .detail-item-header {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .tip-box {
+        background: #fff3cd;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #ffc107;
+    }
+
+    .tip-box h4 {
+        color: #856404;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+    }
+
+    .tip-box ul {
+        list-style-position: inside;
+        color: #856404;
+    }
+
+    .tip-box li {
+        margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .tax-header h1 {
+            font-size: 1.5em;
+        }
+        .tax-content {
+            padding: 20px;
+        }
+        .tax-grid {
+            grid-template-columns: 1fr;
+        }
+        .monthly-schedule {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- 2025 Annual Tax Simulator -->
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h2 class="card-title mb-2">2025 Annual Tax Simulator</h2>
-                    <p class="card-text text-muted">세금 대상을 입력하면 예상 세금이 자동으로 계산됩니다</p>
+<div class="tax-page-container">
+    <div class="tax-header">
+        <h1>🧮 <span id="current-year">2025</span>년 연간 세금 시뮬레이터</h1>
+        <p>세금 대상을 선택하고 금액을 입력하여 연간 세금을 계산하세요</p>
+    </div>
+
+    <div class="tax-content">
+        <div class="tax-grid">
+            <!-- 소득세 -->
+            <div class="tax-card" id="card-income">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-income">
+                    <span class="tax-card-title">소득세 (지방소득세 포함)</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 매월 원천징수<br>
+                    <strong>📐 계산식:</strong> 과세표준 × 세율(6~45%) + 지방소득세 10%
+                </div>
+                <div class="tax-input-group">
+                    <label>연간 급여 총액 (원)</label>
+                    <input type="text" id="input-income" placeholder="예: 200000000">
                 </div>
             </div>
+
+            <!-- 부가가치세 -->
+            <div class="tax-card" id="card-vat">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-vat">
+                    <span class="tax-card-title">부가가치세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 1월, 4월, 7월, 10월<br>
+                    <strong>📐 계산식:</strong> 공급가액 × 10%
+                </div>
+                <div class="tax-input-group">
+                    <label>분기 매출액 (원)</label>
+                    <input type="text" id="input-vat" placeholder="예: 50000000">
+                </div>
+            </div>
+
+            <!-- 종합부동산세 -->
+            <div class="tax-card" id="card-property">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-property">
+                    <span class="tax-card-title">종합부동산세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 12월 (1~15일)<br>
+                    <strong>📐 계산식:</strong> 공시가격 합산 × 세율(0.5~6%)
+                </div>
+                <div class="tax-input-group">
+                    <label>공시가격 합계 (원)</label>
+                    <input type="text" id="input-property" placeholder="예: 1500000000">
+                </div>
+            </div>
+
+            <!-- 증권거래세 -->
+            <div class="tax-card" id="card-stock">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-stock">
+                    <span class="tax-card-title">증권거래세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 주식 매도 시<br>
+                    <strong>📐 계산식:</strong> 매도금액 × 0.18%
+                </div>
+                <div class="tax-input-group">
+                    <label>주식 매도금액 (원)</label>
+                    <input type="text" id="input-stock" placeholder="예: 100000000">
         </div>
     </div>
 
-    <!-- 세금 시뮬레이터 테이블 -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>구분</th>
-                                    <th>세금 종류</th>
-                                    <th>납부 시기</th>
-                                    <th>계산식</th>
-                                    <th>세금 대상 입력</th>
-                                    <th>예상 세금</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- 국세 -->
-                                <tr class="table-light">
-                                    <td rowspan="6" class="align-middle text-center"><strong>국세</strong></td>
-                                    <td>소득세<br><small class="text-muted">(지방소득세 포함)</small></td>
-                                    <td>월별 원천징수<br>5월 종합소득세</td>
-                                    <td>과세소득 × 세율(6-45%)<br>+ 지방소득세 10%</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="annualSalary" placeholder="연봉 입력">
-                                            <span class="input-group-text">만원</span>
+            <!-- 배당소득세 -->
+            <div class="tax-card" id="card-dividend">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-dividend">
+                    <span class="tax-card-title">배당소득세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 배당 지급 시<br>
+                    <strong>📐 계산식:</strong> 2천만원 미만 15.4%
+                </div>
+                <div class="tax-input-group">
+                    <label>연간 배당금 (원)</label>
+                    <input type="text" id="input-dividend" placeholder="예: 15000000">
+                </div>
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="incomeTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>부가가치세</td>
-                                    <td>1, 4, 7, 10월</td>
-                                    <td>공급가액 × 10%</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="annualSales" placeholder="연간 매출액">
-                                            <span class="input-group-text">만원</span>
+
+            <!-- 양도소득세 -->
+            <div class="tax-card" id="card-capital">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-capital">
+                    <span class="tax-card-title">양도소득세</span>
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="vatResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>종합부동산세</td>
-                                    <td>12월(1-15일)</td>
-                                    <td>공시가격 합계 × 세율(0.5-6%)</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="housingPrice" placeholder="주택 공시가격 합산">
-                                            <span class="input-group-text">억원</span>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 양도일로부터 2개월<br>
+                    <strong>📐 계산식:</strong> 양도차익 × 세율(6~75%)
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="propertyTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>증권거래세</td>
-                                    <td>주식 매도 시</td>
-                                    <td>매도금액 × 0.18%</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="stockSales" placeholder="연간 주식 매도액">
-                                            <span class="input-group-text">만원</span>
+                <div class="tax-input-group">
+                    <label>양도차익 (원)</label>
+                    <input type="text" id="input-capital-gain" placeholder="예: 50000000">
+                    <label>보유기간 (년)</label>
+                    <input type="text" id="input-capital-years" placeholder="예: 3">
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="securitiesTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>배당소득세<br><small class="text-muted">(지방소득세 포함)</small></td>
-                                    <td>배당 지급 시 원천징수<br>5월 종합소득세 신고</td>
-                                    <td>2천만원 이하: 15.4%<br>2천만원 초과: 종합과세<br>+ 지방소득세 10%</td>
-                                    <td>
-                                        <div class="input-group input-group-sm mb-1">
-                                            <input type="number" class="form-control" id="dividends" placeholder="연간 배당금">
-                                            <span class="input-group-text">만원</span>
                                         </div>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="otherIncome" placeholder="다른 종합소득">
-                                            <span class="input-group-text">만원</span>
+
+            <!-- 증여세 -->
+            <div class="tax-card" id="card-gift">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-gift">
+                    <span class="tax-card-title">증여세</span>
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="dividendTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>양도소득세</td>
-                                    <td>양도일이 속하는 달의<br>다음 달 말일까지</td>
-                                    <td>양도차익 × 세율(6-75%)</td>
-                                    <td>
-                                        <div class="input-group input-group-sm mb-1">
-                                            <input type="number" class="form-control" id="capitalGains" placeholder="양도차익">
-                                            <span class="input-group-text">만원</span>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 증여일로부터 3개월<br>
+                    <strong>📐 계산식:</strong> (증여재산 - 공제) × 세율
                                         </div>
-                                        <select class="form-select form-select-sm" id="housingType">
-                                            <option value="1house">1주택 (2년 이상 보유)</option>
-                                            <option value="2house">2주택 이상</option>
+                <div class="tax-input-group">
+                    <label>증여금액 (원)</label>
+                    <input type="text" id="input-gift" placeholder="예: 100000000">
+                    <label>수증자</label>
+                    <select id="input-gift-type">
+                        <option value="배우자">배우자 (6억 공제)</option>
+                        <option value="직계존속">직계존속 (5천만원 공제)</option>
+                        <option value="직계비속">직계비속 (5천만원 공제)</option>
+                        <option value="기타친족">기타친족 (1천만원 공제)</option>
                                         </select>
-                                    </td>
-                                    <td class="text-end"><span id="capitalGainsTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>증여세</td>
-                                    <td>증여일로부터 3개월 이내</td>
-                                    <td>(증여재산 - 공제) × 세율<br>(10-50% 누진세율)</td>
-                                    <td>
-                                        <div class="input-group input-group-sm mb-1">
-                                            <input type="number" class="form-control" id="giftValue" placeholder="증여재산 가액">
-                                            <span class="input-group-text">억원</span>
+                </div>
                                         </div>
-                                        <select class="form-select form-select-sm" id="giftRelation">
-                                            <option value="spouse">배우자</option>
-                                            <option value="child">자녀</option>
-                                            <option value="other">기타</option>
-                                        </select>
-                                    </td>
-                                    <td class="text-end"><span id="giftTaxResult">0원</span></td>
-                                </tr>
-                                
-                                <!-- 국세 소계 -->
-                                <tr class="table-warning">
-                                    <td colspan="5" class="text-center"><strong>국세 소계</strong></td>
-                                    <td class="text-end"><strong><span id="nationalTaxTotal">0원</span></strong></td>
-                                </tr>
 
-                                <!-- 지방세 -->
-                                <tr class="table-light">
-                                    <td rowspan="3" class="align-middle text-center"><strong>지방세</strong></td>
-                                    <td>취득세</td>
-                                    <td>취득일로부터 60일 이내</td>
-                                    <td>취득가액 × 1-12%</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="acquisitionValue" placeholder="부동산 취득가액">
-                                            <span class="input-group-text">억원</span>
+            <!-- 취득세 -->
+            <div class="tax-card" id="card-acquisition">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-acquisition">
+                    <span class="tax-card-title">취득세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 취득일로부터 60일<br>
+                    <strong>📐 계산식:</strong> 취득가액 × 1~12%
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="acquisitionTaxResult">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>재산세</td>
-                                    <td>7월, 9월</td>
-                                    <td>공시가격 × 세율(0.05-0.4%)</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="propertyValue" placeholder="주택 공시가격">
-                                            <span class="input-group-text">억원</span>
+                <div class="tax-input-group">
+                    <label>취득가액 (원)</label>
+                    <input type="text" id="input-acquisition" placeholder="예: 500000000">
+                    <label>자산 유형</label>
+                    <select id="input-acquisition-type">
+                        <option value="주택">주택</option>
+                        <option value="토지">토지</option>
+                        <option value="건물">건물</option>
+                        <option value="차량">차량</option>
+                    </select>
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="propertyTaxResult2">0원</span></td>
-                                </tr>
-                                <tr>
-                                    <td>자동차세</td>
-                                    <td>6월, 12월</td>
-                                    <td>배기량(cc) × cc당 요율</td>
-                                    <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" class="form-control" id="vehicleDisplacement" placeholder="차량 배기량">
-                                            <span class="input-group-text">cc</span>
                                         </div>
-                                    </td>
-                                    <td class="text-end"><span id="automobileTaxResult">0원</span></td>
-                                </tr>
 
-                                <!-- 지방세 소계 -->
-                                <tr class="table-warning">
-                                    <td colspan="5" class="text-center"><strong>지방세 소계</strong></td>
-                                    <td class="text-end"><strong><span id="localTaxTotal">0원</span></strong></td>
-                                </tr>
-
-                                <!-- 총 세금 -->
-                                <tr class="table-success">
-                                    <td colspan="5" class="text-center"><strong>연간 총 세금</strong></td>
-                                    <td class="text-end"><strong><span id="totalTax" class="text-success">0원</span></strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- 재산세 -->
+            <div class="tax-card" id="card-realty">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-realty">
+                    <span class="tax-card-title">재산세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 7월, 9월<br>
+                    <strong>📐 계산식:</strong> 공시가격 × 세율(0.1~0.4%)
+                </div>
+                <div class="tax-input-group">
+                    <label>공시가격 (원)</label>
+                    <input type="text" id="input-realty" placeholder="예: 800000000">
+                    <label>재산 유형</label>
+                    <select id="input-realty-type">
+                        <option value="주택">주택</option>
+                        <option value="토지">토지</option>
+                    </select>
                 </div>
             </div>
+
+            <!-- 자동차세 -->
+            <div class="tax-card" id="card-car">
+                <div class="tax-card-header">
+                    <input type="checkbox" id="check-car">
+                    <span class="tax-card-title">자동차세</span>
+                </div>
+                <div class="tax-info">
+                    <strong>⏰ 납부시기:</strong> 6월, 12월<br>
+                    <strong>📐 계산식:</strong> 배기량(cc) × cc당 금액
+                    </div>
+                <div class="tax-input-group">
+                    <label>배기량 (cc)</label>
+                    <input type="text" id="input-car" placeholder="예: 2000">
+                    <label>차량 유형</label>
+                    <select id="input-car-type">
+                        <option value="비영업용">비영업용</option>
+                        <option value="영업용">영업용</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="calculate-section">
+            <button class="calculate-btn" onclick="calculateAllTaxes()">💰 연간 총 세금 계산하기</button>
+        </div>
+
+        <div class="result-section" id="result-section">
+            <!-- 결과 표시 영역 -->
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    // 페이지 로드 시 초기화
+// 페이지 로드 시 현재 연도 설정 및 이벤트 리스너 등록
     document.addEventListener('DOMContentLoaded', function() {
-        initializeTaxCalculator();
+    // 현재 연도 설정
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // 모든 체크박스에 이벤트 리스너 추가
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var cardId = this.id.replace('check-', 'card-');
+            var card = document.getElementById(cardId);
+            
+            if (this.checked) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+        });
+    });
+    
+    // 모든 숫자 입력란에 이벤트 리스너 추가
+    var inputs = document.querySelectorAll('input[type="text"]');
+    inputs.forEach(function(input) {
+        input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    });
+});
+
+// 숫자 포맷
+function formatNumber(num) {
+    return Math.round(num).toLocaleString('ko-KR');
+}
+
+// 전체 계산
+    function calculateAllTaxes() {
+    var totalTax = 0;
+    var taxDetails = [];
+    var monthlySchedule = {};
+    
+    // 월별 초기화
+    for (var i = 1; i <= 12; i++) {
+        monthlySchedule[i] = [];
+    }
+
+    // 소득세
+    if (document.getElementById('check-income').checked) {
+        var income = parseInt(document.getElementById('input-income').value) || 0;
+        if (income > 0) {
+            var result = calcIncomeTax(income);
+            totalTax += result.total;
+            taxDetails.push({name: '소득세 (지방소득세 포함)', details: result});
+            for (var m = 1; m <= 12; m++) {
+                monthlySchedule[m].push({name: '소득세', amount: result.total / 12});
+            }
+        }
+    }
+
+    // 부가가치세
+    if (document.getElementById('check-vat').checked) {
+        var vat = parseInt(document.getElementById('input-vat').value) || 0;
+        if (vat > 0) {
+            var result = calcVAT(vat);
+            totalTax += result.total;
+            taxDetails.push({name: '부가가치세', details: result});
+            [1, 4, 7, 10].forEach(function(month) {
+                monthlySchedule[month].push({name: '부가가치세', amount: result.quarterly});
+            });
+        }
+    }
+
+    // 종합부동산세
+    if (document.getElementById('check-property').checked) {
+        var property = parseInt(document.getElementById('input-property').value) || 0;
+        if (property > 0) {
+            var result = calcPropertyTax(property);
+            totalTax += result.total;
+            taxDetails.push({name: '종합부동산세', details: result});
+            monthlySchedule[12].push({name: '종합부동산세', amount: result.total});
+        }
+    }
+
+    // 증권거래세
+    if (document.getElementById('check-stock').checked) {
+        var stock = parseInt(document.getElementById('input-stock').value) || 0;
+        if (stock > 0) {
+            var result = calcStockTax(stock);
+            totalTax += result.total;
+            taxDetails.push({name: '증권거래세', details: result});
+        }
+    }
+
+    // 배당소득세
+    if (document.getElementById('check-dividend').checked) {
+        var dividend = parseInt(document.getElementById('input-dividend').value) || 0;
+        if (dividend > 0) {
+            var result = calcDividendTax(dividend);
+            totalTax += result.total;
+            taxDetails.push({name: '배당소득세', details: result});
+        }
+    }
+
+    // 양도소득세
+    if (document.getElementById('check-capital').checked) {
+        var gain = parseInt(document.getElementById('input-capital-gain').value) || 0;
+        var years = parseInt(document.getElementById('input-capital-years').value) || 0;
+        if (gain > 0 && years > 0) {
+            var result = calcCapitalGainsTax(gain, years);
+            totalTax += result.total;
+            taxDetails.push({name: '양도소득세', details: result});
+        }
+    }
+
+    // 증여세
+    if (document.getElementById('check-gift').checked) {
+        var gift = parseInt(document.getElementById('input-gift').value) || 0;
+        var giftType = document.getElementById('input-gift-type').value;
+        if (gift > 0) {
+            var result = calcGiftTax(gift, giftType);
+            totalTax += result.total;
+            taxDetails.push({name: '증여세', details: result});
+        }
+    }
+
+    // 취득세
+    if (document.getElementById('check-acquisition').checked) {
+        var acquisition = parseInt(document.getElementById('input-acquisition').value) || 0;
+        var acquisitionType = document.getElementById('input-acquisition-type').value;
+        if (acquisition > 0) {
+            var result = calcAcquisitionTax(acquisition, acquisitionType);
+            totalTax += result.total;
+            taxDetails.push({name: '취득세', details: result});
+        }
+    }
+
+    // 재산세
+    if (document.getElementById('check-realty').checked) {
+        var realty = parseInt(document.getElementById('input-realty').value) || 0;
+        var realtyType = document.getElementById('input-realty-type').value;
+        if (realty > 0) {
+            var result = calcRealtyTax(realty, realtyType);
+            totalTax += result.total;
+            taxDetails.push({name: '재산세', details: result});
+            monthlySchedule[7].push({name: '재산세', amount: result.total / 2});
+            monthlySchedule[9].push({name: '재산세', amount: result.total / 2});
+        }
+    }
+
+    // 자동차세
+    if (document.getElementById('check-car').checked) {
+        var car = parseInt(document.getElementById('input-car').value) || 0;
+        var carType = document.getElementById('input-car-type').value;
+        if (car > 0) {
+            var result = calcCarTax(car, carType);
+            totalTax += result.total;
+            taxDetails.push({name: '자동차세', details: result});
+            monthlySchedule[6].push({name: '자동차세', amount: result.total / 2});
+            monthlySchedule[12].push({name: '자동차세', amount: result.total / 2});
+        }
+    }
+
+    if (taxDetails.length === 0) {
+        alert('최소 한 개 이상의 세금을 선택하고 금액을 입력해주세요.');
+        return;
+    }
+
+    showResults(totalTax, taxDetails, monthlySchedule);
+}
+
+// 결과 표시
+function showResults(totalTax, taxDetails, monthlySchedule) {
+    var currentYear = new Date().getFullYear();
+    var html = '<div class="result-summary">';
+    html += '<h2>📊 ' + currentYear + '년 연간 세금 총액</h2>';
+    html += '<div class="total-tax">' + formatNumber(totalTax) + '원</div>';
+    html += '</div>';
+
+    html += '<h3 style="color: #667eea; margin-bottom: 20px; font-size: 1.5em;">📅 월별 납부 일정</h3>';
+    html += '<div class="monthly-schedule">';
+
+    for (var month = 1; month <= 12; month++) {
+        var hasTax = monthlySchedule[month].length > 0;
+        var monthTotal = 0;
+        
+        monthlySchedule[month].forEach(function(item) {
+            monthTotal += item.amount;
+        });
+
+        html += '<div class="month-card ' + (hasTax ? 'has-tax' : '') + '">';
+        html += '<div class="month-title">' + month + '월</div>';
+
+        if (hasTax) {
+            monthlySchedule[month].forEach(function(item) {
+                html += '<div class="tax-item">';
+                html += '<span>' + item.name + '</span>';
+                html += '<span>' + formatNumber(item.amount) + '원</span>';
+                html += '</div>';
+            });
+            html += '<div class="month-total">';
+            html += '<span>합계</span>';
+            html += '<span>' + formatNumber(monthTotal) + '원</span>';
+            html += '</div>';
+        } else {
+            html += '<div style="color: #999; text-align: center; padding: 20px 0;">납부 세금 없음</div>';
+        }
+
+        html += '</div>';
+    }
+
+    html += '</div>';
+
+    // 상세 내역
+    html += '<div class="detail-section">';
+    html += '<h3>📋 세목별 상세 내역</h3>';
+
+    taxDetails.forEach(function(tax) {
+        html += '<div class="detail-item">';
+        html += '<div class="detail-item-header">' + tax.name + '</div>';
+        
+        for (var key in tax.details) {
+            if (key !== 'total' && key !== 'quarterly') {
+                html += '<div class="detail-row">';
+                html += '<span>' + key + '</span>';
+                html += '<span>' + (typeof tax.details[key] === 'number' ? formatNumber(tax.details[key]) + '원' : tax.details[key]) + '</span>';
+                html += '</div>';
+            }
+        }
+        
+        html += '<div class="detail-row" style="border-top: 2px solid #667eea; padding-top: 10px; margin-top: 10px;">';
+        html += '<span style="color: #667eea; font-weight: bold;">총 세액</span>';
+        html += '<span style="color: #667eea; font-size: 1.1em; font-weight: bold;">' + formatNumber(tax.details.total) + '원</span>';
+        html += '</div>';
+        
+        html += '</div>';
     });
 
-    // 세금 계산기 초기화
-    function initializeTaxCalculator() {
-        // 모든 입력 필드에 이벤트 리스너 추가
-        const inputs = document.querySelectorAll('input[type="number"], select');
-        inputs.forEach(input => {
-            input.addEventListener('input', calculateAllTaxes);
-            input.addEventListener('change', calculateAllTaxes);
-        });
-    }
+    html += '</div>';
 
-    // 모든 세금 계산
-    function calculateAllTaxes() {
-        calculateIncomeTax();
-        calculateVAT();
-        calculatePropertyTax();
-        calculateSecuritiesTax();
-        calculateDividendTax();
-        calculateCapitalGainsTax();
-        calculateGiftTax();
-        calculateAcquisitionTax();
-        calculatePropertyTax2();
-        calculateAutomobileTax();
-        calculateTotals();
-    }
+    // 절세 팁
+    html += '<div class="tip-box">';
+    html += '<h4>💡 세금 절약 TIP</h4>';
+    html += '<ul>';
+    html += '<li><strong>연금저축:</strong> 연 700만원까지 세액공제 (최대 115만원 절세)</li>';
+    html += '<li><strong>주택청약:</strong> 연 240만원까지 세액공제 (최대 39만원 절세)</li>';
+    html += '<li><strong>신용카드:</strong> 총급여 25% 초과분 15~40% 공제</li>';
+    html += '<li><strong>의료비:</strong> 총급여 3% 초과분 15% 세액공제</li>';
+    html += '<li><strong>교육비:</strong> 1인당 연 900만원까지 15% 세액공제</li>';
+    html += '</ul>';
+    html += '</div>';
 
-    // 소득세 계산
-    function calculateIncomeTax() {
-        const salary = parseFloat(document.getElementById('annualSalary').value) || 0;
-        if (salary === 0) {
-            document.getElementById('incomeTaxResult').textContent = '0원';
-            return 0;
-        }
-        
-        // 간단한 소득세 계산 (실제로는 더 복잡)
-        let tax = 0;
-        if (salary > 15000) tax += (salary - 15000) * 0.45;
-        if (salary > 8800) tax += Math.min(salary - 8800, 15000 - 8800) * 0.35;
-        if (salary > 4600) tax += Math.min(salary - 4600, 8800 - 4600) * 0.24;
-        if (salary > 1200) tax += Math.min(salary - 1200, 4600 - 1200) * 0.15;
-        if (salary > 0) tax += Math.min(salary, 1200) * 0.06;
-        
-        const localTax = tax * 0.1;
-        const totalTax = tax + localTax;
-        
-        document.getElementById('incomeTaxResult').textContent = formatCurrency(totalTax * 10000);
-        return totalTax;
-    }
+    document.getElementById('result-section').innerHTML = html;
+    document.getElementById('result-section').classList.add('show');
+    document.getElementById('result-section').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
 
-    // 부가가치세 계산
-    function calculateVAT() {
-        const sales = parseFloat(document.getElementById('annualSales').value) || 0;
-        const vat = sales * 0.1;
-        document.getElementById('vatResult').textContent = formatCurrency(vat * 10000);
-        return vat;
-    }
+// 소득세 계산
+function calcIncomeTax(amount) {
+    var deduction;
+    if (amount <= 5000000) deduction = amount * 0.7;
+    else if (amount <= 15000000) deduction = 3500000 + (amount - 5000000) * 0.4;
+    else if (amount <= 45000000) deduction = 7500000 + (amount - 15000000) * 0.15;
+    else if (amount <= 100000000) deduction = 12000000 + (amount - 45000000) * 0.05;
+    else deduction = 14750000 + (amount - 100000000) * 0.02;
 
-    // 종합부동산세 계산
-    function calculatePropertyTax() {
-        const price = parseFloat(document.getElementById('housingPrice').value) || 0;
-        if (price === 0) {
-            document.getElementById('propertyTaxResult').textContent = '0원';
-            return 0;
-        }
-        
-        let tax = 0;
-        if (price > 9) tax += (price - 9) * 0.06;
-        if (price > 6) tax += Math.min(price - 6, 9 - 6) * 0.04;
-        if (price > 3) tax += Math.min(price - 3, 6 - 3) * 0.02;
-        if (price > 1.2) tax += Math.min(price - 1.2, 3 - 1.2) * 0.01;
-        
-        document.getElementById('propertyTaxResult').textContent = formatCurrency(tax * 100000000);
-        return tax;
-    }
+    var taxableIncome = Math.max(0, amount - deduction - 1500000);
+    var tax = 0;
 
-    // 증권거래세 계산
-    function calculateSecuritiesTax() {
-        const sales = parseFloat(document.getElementById('stockSales').value) || 0;
-        const tax = sales * 0.0018;
-        document.getElementById('securitiesTaxResult').textContent = formatCurrency(tax * 10000);
-        return tax;
-    }
+    if (taxableIncome <= 14000000) tax = taxableIncome * 0.06;
+    else if (taxableIncome <= 50000000) tax = 840000 + (taxableIncome - 14000000) * 0.15;
+    else if (taxableIncome <= 88000000) tax = 6240000 + (taxableIncome - 50000000) * 0.24;
+    else if (taxableIncome <= 150000000) tax = 15360000 + (taxableIncome - 88000000) * 0.35;
+    else if (taxableIncome <= 300000000) tax = 37060000 + (taxableIncome - 150000000) * 0.38;
+    else if (taxableIncome <= 500000000) tax = 94060000 + (taxableIncome - 300000000) * 0.40;
+    else if (taxableIncome <= 1000000000) tax = 174060000 + (taxableIncome - 500000000) * 0.42;
+    else tax = 384060000 + (taxableIncome - 1000000000) * 0.45;
 
-    // 배당소득세 계산
-    function calculateDividendTax() {
-        const dividends = parseFloat(document.getElementById('dividends').value) || 0;
-        const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
-        
-        if (dividends === 0) {
-            document.getElementById('dividendTaxResult').textContent = '0원';
-            return 0;
-        }
-        
-        let tax = 0;
-        if (dividends <= 2000) {
-            tax = dividends * 0.154;
-        } else {
-            // 종합과세 (간단한 계산)
-            tax = dividends * 0.22;
-        }
-        
-        document.getElementById('dividendTaxResult').textContent = formatCurrency(tax * 10000);
-        return tax;
-    }
+    var localTax = tax * 0.1;
+    return {'연간 급여': amount, '근로소득공제': deduction, '과세표준': taxableIncome, '소득세': tax, '지방소득세': localTax, total: tax + localTax};
+}
 
-    // 양도소득세 계산
-    function calculateCapitalGainsTax() {
-        const gains = parseFloat(document.getElementById('capitalGains').value) || 0;
-        const housingType = document.getElementById('housingType').value;
-        
-        if (gains === 0) {
-            document.getElementById('capitalGainsTaxResult').textContent = '0원';
-            return 0;
-        }
-        
-        let tax = 0;
-        if (housingType === '1house') {
-            // 1주택 2년 이상 보유 시 혜택
-            tax = gains * 0.06;
-        } else {
-            // 2주택 이상
-            tax = gains * 0.75;
-        }
-        
-        document.getElementById('capitalGainsTaxResult').textContent = formatCurrency(tax * 10000);
-        return tax;
-    }
+// 부가가치세 계산
+function calcVAT(amount) {
+    var vat = amount * 0.1;
+    return {'분기 매출액': amount, '분기 부가세': vat, quarterly: vat, total: vat * 4};
+}
 
-    // 증여세 계산
-    function calculateGiftTax() {
-        const giftValue = parseFloat(document.getElementById('giftValue').value) || 0;
-        const relation = document.getElementById('giftRelation').value;
-        
-        if (giftValue === 0) {
-            document.getElementById('giftTaxResult').textContent = '0원';
-            return 0;
-        }
-        
-        // 간단한 증여세 계산
-        let deduction = 0;
-        if (relation === 'spouse') deduction = 2; // 배우자 2억 공제
-        else if (relation === 'child') deduction = 1; // 자녀 1억 공제
-        
-        const taxableAmount = Math.max(0, giftValue - deduction);
-        let tax = 0;
-        if (taxableAmount > 0) {
-            tax = taxableAmount * 0.1; // 간단한 10% 세율
-        }
-        
-        document.getElementById('giftTaxResult').textContent = formatCurrency(tax * 100000000);
-        return tax;
+// 종합부동산세 계산
+function calcPropertyTax(amount) {
+    var tax = 0;
+    if (amount > 1200000000) {
+        if (amount <= 6000000000) tax = (amount - 1200000000) * 0.005;
+        else tax = (6000000000 - 1200000000) * 0.005 + (amount - 6000000000) * 0.06;
+    }
+    return {'공시가격 합산': amount, '과세 여부': amount <= 1200000000 ? '비과세' : '과세', total: tax};
+}
+
+// 증권거래세 계산
+function calcStockTax(amount) {
+    var tax = amount * 0.0018;
+    return {'매도금액': amount, '실수령액': amount - tax, total: tax};
+}
+
+// 배당소득세 계산
+function calcDividendTax(amount) {
+    var isSeparate = amount < 20000000;
+    var tax = amount * 0.14;
+    var localTax = isSeparate ? amount * 0.014 : tax * 0.1;
+    return {'배당금': amount, '과세방식': isSeparate ? '분리과세' : '종합과세', '배당소득세': tax, '지방소득세': localTax, total: tax + localTax};
+}
+
+// 양도소득세 계산
+function calcCapitalGainsTax(gain, years) {
+    var taxableGain = Math.max(0, gain - 2500000);
+    var longTermRate = years >= 3 ? Math.min(0.3, (years - 2) * 0.08) : 0;
+    taxableGain = taxableGain * (1 - longTermRate);
+
+    var tax = 0;
+    if (taxableGain <= 14000000) tax = taxableGain * 0.06;
+    else if (taxableGain <= 50000000) tax = 840000 + (taxableGain - 14000000) * 0.15;
+    else if (taxableGain <= 88000000) tax = 6240000 + (taxableGain - 50000000) * 0.24;
+    else if (taxableGain <= 150000000) tax = 15360000 + (taxableGain - 88000000) * 0.35;
+    else if (taxableGain <= 300000000) tax = 37060000 + (taxableGain - 150000000) * 0.38;
+    else if (taxableGain <= 500000000) tax = 94060000 + (taxableGain - 300000000) * 0.40;
+    else tax = 174060000 + (taxableGain - 500000000) * 0.42;
+
+    var localTax = tax * 0.1;
+    return {'양도차익': gain, '보유기간': years + '년', '장기보유특별공제': (longTermRate * 100).toFixed(0) + '%', '과세표준': taxableGain, '양도소득세': tax, '지방소득세': localTax, total: tax + localTax};
+}
+
+// 증여세 계산
+function calcGiftTax(amount, recipientType) {
+    var deductions = {'배우자': 600000000, '직계존속': 50000000, '직계비속': 50000000, '기타친족': 10000000};
+    var deduction = deductions[recipientType];
+    var taxableAmount = Math.max(0, amount - deduction);
+
+    var tax = 0;
+    if (taxableAmount <= 100000000) tax = taxableAmount * 0.1;
+    else if (taxableAmount <= 500000000) tax = 10000000 + (taxableAmount - 100000000) * 0.2;
+    else if (taxableAmount <= 1000000000) tax = 90000000 + (taxableAmount - 500000000) * 0.3;
+    else if (taxableAmount <= 3000000000) tax = 240000000 + (taxableAmount - 1000000000) * 0.4;
+    else tax = 1040000000 + (taxableAmount - 3000000000) * 0.5;
+
+    return {'증여금액': amount, '수증자': recipientType, '증여공제': deduction, '과세표준': taxableAmount, total: tax};
     }
 
     // 취득세 계산
-    function calculateAcquisitionTax() {
-        const value = parseFloat(document.getElementById('acquisitionValue').value) || 0;
-        const tax = value * 0.04; // 4% 세율
-        document.getElementById('acquisitionTaxResult').textContent = formatCurrency(tax * 100000000);
-        return tax;
+function calcAcquisitionTax(amount, propertyType) {
+    var baseRate = 0.04;
+    if (propertyType === '주택') {
+        if (amount <= 600000000) baseRate = 0.01;
+        else if (amount <= 900000000) baseRate = 0.023;
+        else baseRate = 0.03;
+    } else if (propertyType === '차량') baseRate = 0.07;
+
+    var acquisitionTax = amount * baseRate;
+    var educationTax = acquisitionTax * 0.1;
+    var agricultureTax = (propertyType === '주택' || propertyType === '토지' || propertyType === '건물') ? acquisitionTax * 0.2 : 0;
+
+    return {'취득가액': amount, '자산유형': propertyType, '취득세': acquisitionTax, '지방교육세': educationTax, '농특세': agricultureTax, total: acquisitionTax + educationTax + agricultureTax};
     }
 
     // 재산세 계산
-    function calculatePropertyTax2() {
-        const value = parseFloat(document.getElementById('propertyValue').value) || 0;
-        const tax = value * 0.001; // 0.1% 세율
-        document.getElementById('propertyTaxResult2').textContent = formatCurrency(tax * 100000000);
-        return tax;
+function calcRealtyTax(amount, propertyType) {
+    var taxRate = 0.0025;
+    if (propertyType === '주택') {
+        if (amount <= 60000000) taxRate = 0.001;
+        else if (amount <= 150000000) taxRate = 0.0015;
+        else if (amount <= 300000000) taxRate = 0.0025;
+        else taxRate = 0.004;
+    } else taxRate = 0.002;
+
+    var propertyTax = amount * taxRate;
+    var educationTax = propertyTax * 0.2;
+
+    return {'공시가격': amount, '재산유형': propertyType, '재산세': propertyTax, '지방교육세': educationTax, total: propertyTax + educationTax};
     }
 
     // 자동차세 계산
-    function calculateAutomobileTax() {
-        const displacement = parseFloat(document.getElementById('vehicleDisplacement').value) || 0;
-        const tax = displacement * 0.1; // cc당 0.1원
-        document.getElementById('automobileTaxResult').textContent = formatCurrency(tax);
-        return tax;
+function calcCarTax(cc, carType) {
+    var rate;
+    if (carType === '비영업용') {
+        if (cc <= 1000) rate = 80;
+        else if (cc <= 1600) rate = 140;
+        else rate = 200;
+    } else {
+        if (cc <= 1000) rate = 18;
+        else if (cc <= 1600) rate = 19;
+        else rate = 24;
     }
 
-    // 총계 계산
-    function calculateTotals() {
-        const nationalTaxes = [
-            calculateIncomeTax(),
-            calculateVAT(),
-            calculatePropertyTax(),
-            calculateSecuritiesTax(),
-            calculateDividendTax(),
-            calculateCapitalGainsTax(),
-            calculateGiftTax()
-        ];
-        
-        const localTaxes = [
-            calculateAcquisitionTax(),
-            calculatePropertyTax2(),
-            calculateAutomobileTax()
-        ];
-        
-        const nationalTotal = nationalTaxes.reduce((sum, tax) => sum + tax, 0);
-        const localTotal = localTaxes.reduce((sum, tax) => sum + tax, 0);
-        const totalTax = nationalTotal + localTotal;
-        
-        document.getElementById('nationalTaxTotal').textContent = formatCurrency(nationalTotal * 10000);
-        document.getElementById('localTaxTotal').textContent = formatCurrency(localTotal * 10000);
-        document.getElementById('totalTax').textContent = formatCurrency(totalTax * 10000);
+    var annualTax = cc * rate;
+    var educationTax = annualTax * 0.3;
+
+    return {'배기량': cc + 'cc', '차량유형': carType, 'cc당 세액': rate + '원', '자동차세': annualTax, '교육세': educationTax, total: annualTax + educationTax};
     }
 </script>
 {% endblock %}
