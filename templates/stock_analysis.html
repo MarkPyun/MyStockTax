@@ -10,7 +10,7 @@
             <div class="col-md-8 col-lg-6">
                 <div class="d-flex justify-content-center align-items-center">
                     <!-- 검색 영역 컨테이너 -->
-                    <div style="min-width: 400px; max-width: 600px;">
+                    <div style="width: 100%; max-width: 600px;">
                                 <!-- 메인 검색 바 -->
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="예: AAPL (미국), 005930 (한국)" id="mainSearchInput" style="font-size: 14px;" maxlength="50">
@@ -56,8 +56,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="priceChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="priceChart"></canvas>
                     </div>
                         <!-- 주가 차트 개별 로딩 오버레이 -->
                         <div id="priceChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -78,8 +78,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                    <div class="card-body">
-                            <canvas id="revenueChart" width="400" height="200"></canvas>
+                    <div class="card-body" style="height: 300px;">
+                            <canvas id="revenueChart"></canvas>
                         </div>
                         <!-- 매출 차트 개별 로딩 오버레이 -->
                         <div id="revenueChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -100,8 +100,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="operatingIncomeChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="operatingIncomeChart"></canvas>
                     </div>
                         <!-- 영업이익 차트 개별 로딩 오버레이 -->
                         <div id="operatingIncomeChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -122,8 +122,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                    <div class="card-body">
-                            <canvas id="netProfitChart" width="400" height="200"></canvas>
+                    <div class="card-body" style="height: 300px;">
+                            <canvas id="netProfitChart"></canvas>
                         </div>
                         <!-- 당기순이익 차트 개별 로딩 오버레이 -->
                         <div id="netProfitChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -144,9 +144,9 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="totalDebtChart" width="400" height="200"></canvas>
-                    </div>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="totalDebtChart"></canvas>
+                        </div>
                         <!-- 총부채 차트 개별 로딩 오버레이 -->
                         <div id="totalDebtChartLoading" class="chart-loading-overlay" style="display: none;">
                             <div class="text-center">
@@ -166,8 +166,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                    <div class="card-body">
-                            <canvas id="currentLiabilitiesChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="currentLiabilitiesChart"></canvas>
                         </div>
                         <!-- 유동부채 차트 개별 로딩 오버레이 -->
                         <div id="currentLiabilitiesChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -188,8 +188,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="interestExpenseChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="interestExpenseChart"></canvas>
                         </div>
                         <!-- 이자비용 차트 개별 로딩 오버레이 -->
                         <div id="interestExpenseChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -210,8 +210,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="cashChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="cashChart"></canvas>
                         </div>
                         <!-- 현금성자산 차트 개별 로딩 오버레이 -->
                         <div id="cashChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -232,8 +232,8 @@
                         </button>
                     </h4>
                     <div class="card" style="position: relative;">
-                        <div class="card-body">
-                            <canvas id="valuationChart" width="400" height="200"></canvas>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="valuationChart"></canvas>
                         </div>
                         <!-- 밸류에이션 차트 개별 로딩 오버레이 -->
                         <div id="valuationChartLoading" class="chart-loading-overlay" style="display: none;">
@@ -1284,6 +1284,9 @@
             existingChart.destroy();
         }
         
+        // 주가 단위 결정 (시장에 따라)
+        const priceLabel = currentMarket === 'US' ? '주가 (USD)' : '주가 (원)';
+        
         // 주가 차트 생성
         const priceCtx = document.getElementById('priceChart').getContext('2d');
         new Chart(priceCtx, {
@@ -1291,7 +1294,7 @@
             data: {
                 labels: chartData.labels,
                 datasets: [{
-                    label: '주가',
+                    label: priceLabel,
                     data: chartData.prices,
                     borderColor: 'rgb(54, 162, 235)',
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -1311,7 +1314,7 @@
                     y: {
                         title: {
                             display: true,
-                            text: '주가'
+                            text: priceLabel
                         }
                     }
                 }
