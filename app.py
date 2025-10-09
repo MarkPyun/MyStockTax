@@ -2970,28 +2970,43 @@ def economy_trade():
 # ============================================================================
 
 def get_treasury_data_from_yahoo(years=4):
-    """Yahoo Finance에서 미국 국채금리 데이터를 조회합니다 (5년물 vs 3개월물)"""
+    """FRED API에서 미국 국채금리 데이터를 조회합니다 (5년물 vs 3개월물)"""
     try:
+        if not fred:
+            print("[ERROR] FRED API 클라이언트가 초기화되지 않았습니다.")
+            return {}
+        
         current_date = datetime.now()
         current_year = current_date.year
         start_year = current_year - years
         
-        # 5년물 (^FVX)과 3개월물 (^IRX) 티커
-        treasury_5y = yf.Ticker('^FVX')
-        treasury_3m = yf.Ticker('^IRX')
+        print(f"[INFO] FRED API에서 국채금리 데이터 조회: {start_year}-01-01 ~ {current_date.strftime('%Y-%m-%d')}")
+        
+        # FRED API에서 5년물(DGS5)과 3개월물(DGS3MO) 데이터 조회
+        try:
+            treasury_5y_series = fred.get_series('DGS5', observation_start=f'{start_year}-01-01')
+            print(f"[INFO] 5년물 데이터 조회 성공: {len(treasury_5y_series)}개")
+        except Exception as e:
+            print(f"[ERROR] 5년물 데이터 조회 실패: {e}")
+            treasury_5y_series = None
+        
+        try:
+            treasury_3m_series = fred.get_series('DGS3MO', observation_start=f'{start_year}-01-01')
+            print(f"[INFO] 3개월물 데이터 조회 성공: {len(treasury_3m_series)}개")
+        except Exception as e:
+            print(f"[ERROR] 3개월물 데이터 조회 실패: {e}")
+            treasury_3m_series = None
+        
+        if treasury_5y_series is None or treasury_3m_series is None:
+            print("[ERROR] 국채 데이터를 가져올 수 없습니다.")
+            return {}
+        
+        if treasury_5y_series.empty or treasury_3m_series.empty:
+            print("[ERROR] 국채 데이터가 비어있습니다.")
+            return {}
         
         # 분기별 데이터 저장
         treasury_data = {}
-        
-        # 5년물 데이터 조회
-        hist_5y = treasury_5y.history(start=f"{start_year}-01-01", end=current_date.strftime('%Y-%m-%d'))
-        
-        # 3개월물 데이터 조회
-        hist_3m = treasury_3m.history(start=f"{start_year}-01-01", end=current_date.strftime('%Y-%m-%d'))
-        
-        if hist_5y.empty or hist_3m.empty:
-            print("국채 데이터가 비어있습니다.")
-            return {}
         
         # 분기별로 평균 계산
         for year in range(start_year, current_year + 1):
@@ -3001,15 +3016,19 @@ def get_treasury_data_from_yahoo(years=4):
                 end_month = quarter * 3
                 
                 # 해당 분기의 데이터 필터링
-                mask_5y = (hist_5y.index.year == year) & (hist_5y.index.month >= start_month) & (hist_5y.index.month <= end_month)
-                mask_3m = (hist_3m.index.year == year) & (hist_3m.index.month >= start_month) & (hist_3m.index.month <= end_month)
+                mask_5y = (treasury_5y_series.index.year == year) & \
+                          (treasury_5y_series.index.month >= start_month) & \
+                          (treasury_5y_series.index.month <= end_month)
+                mask_3m = (treasury_3m_series.index.year == year) & \
+                          (treasury_3m_series.index.month >= start_month) & \
+                          (treasury_3m_series.index.month <= end_month)
                 
-                quarter_data_5y = hist_5y[mask_5y]
-                quarter_data_3m = hist_3m[mask_3m]
+                quarter_data_5y = treasury_5y_series[mask_5y]
+                quarter_data_3m = treasury_3m_series[mask_3m]
                 
                 if not quarter_data_5y.empty and not quarter_data_3m.empty:
-                    avg_5y = quarter_data_5y['Close'].mean()
-                    avg_3m = quarter_data_3m['Close'].mean()
+                    avg_5y = quarter_data_5y.mean()
+                    avg_3m = quarter_data_3m.mean()
                     
                     key = f"{year}Q{quarter}"
                     treasury_data[key] = {
@@ -3019,11 +3038,11 @@ def get_treasury_data_from_yahoo(years=4):
                     
                     print(f"{key}: 5년물={avg_5y:.4f}%, 3개월물={avg_3m:.4f}%")
         
-        print(f"국채 데이터 조회 완료: 총 {len(treasury_data)}개 분기")
+        print(f"[SUCCESS] 국채 데이터 조회 완료: 총 {len(treasury_data)}개 분기")
         return treasury_data
         
     except Exception as e:
-        print(f"국채 데이터 조회 오류: {e}")
+        print(f"[ERROR] 국채 데이터 조회 오류: {e}")
         import traceback
         traceback.print_exc()
         return {}
