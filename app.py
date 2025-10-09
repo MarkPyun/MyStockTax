@@ -1057,8 +1057,13 @@ def get_valuation_data_from_yahoo(ticker_obj, years=10):
         # 1. 분기별 주가 데이터 가져오기 (충분히 긴 기간)
         hist = ticker_obj.history(period="2y")  # 2년치 주가 (5분기 커버)
         
+        # 주가 데이터가 없으면 빈 딕셔너리 반환
+        if hist is None or hist.empty:
+            print("[DEBUG] hist is empty - no price data available")
+            return {}
+        
         # Timezone 제거 (timezone-naive로 변환)
-        if hist.index.tz is not None:
+        if hasattr(hist.index, 'tz') and hist.index.tz is not None:
             hist.index = hist.index.tz_localize(None)
         
         # 2. 분기별 재무제표 데이터
@@ -2832,8 +2837,8 @@ def get_stock_basic_info(symbol):
         
         print(f"[INFO] 주식 정보 조회 시작: {symbol}")
         
-        # Rate limiting 방지를 위한 지연
-        time.sleep(random.uniform(1, 3))
+        # Rate limiting 방지를 위한 지연 (429 에러 방지)
+        time.sleep(random.uniform(2, 5))
         
         stock = yf.Ticker(symbol)
         
