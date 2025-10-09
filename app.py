@@ -197,6 +197,9 @@ def convert_to_yahoo_symbol(ticker):
 def get_company_name(ticker):
     """Yahoo Finance에서 회사명을 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -220,6 +223,9 @@ def get_company_name(ticker):
 def get_stock_price_data(ticker, years=10):
     """Yahoo Finance에서 주가 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -246,6 +252,9 @@ def get_stock_price_data(ticker, years=10):
 def get_stock_revenue_data(ticker, years=10):
     """Yahoo Finance에서 매출 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -261,6 +270,9 @@ def get_stock_revenue_data(ticker, years=10):
 def get_stock_operating_income_data(ticker, years=10):
     """Yahoo Finance에서 영업이익 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -276,6 +288,9 @@ def get_stock_operating_income_data(ticker, years=10):
 def get_stock_net_profit_data(ticker, years=10):
     """Yahoo Finance에서 당기순이익 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -291,6 +306,9 @@ def get_stock_net_profit_data(ticker, years=10):
 def get_stock_total_debt_data(ticker, years=10):
     """Yahoo Finance에서 총부채 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -306,6 +324,9 @@ def get_stock_total_debt_data(ticker, years=10):
 def get_stock_current_liabilities_data(ticker, years=10):
     """Yahoo Finance에서 유동부채 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -321,6 +342,9 @@ def get_stock_current_liabilities_data(ticker, years=10):
 def get_stock_interest_expense_data(ticker, years=10):
     """Yahoo Finance에서 이자비용 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -336,6 +360,9 @@ def get_stock_interest_expense_data(ticker, years=10):
 def get_stock_cash_data(ticker, years=10):
     """Yahoo Finance에서 현금및현금성자산 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -351,6 +378,9 @@ def get_stock_cash_data(ticker, years=10):
 def get_stock_valuation_data(ticker, years=10):
     """Yahoo Finance에서 PBR, PER, EV/EBITDA 데이터만 조회합니다."""
     try:
+        import time
+        time.sleep(0.5)  # Rate limit 방지를 위한 지연
+        
         yahoo_symbol = convert_to_yahoo_symbol(ticker)
         ticker_obj = yf.Ticker(yahoo_symbol)
         
@@ -2810,16 +2840,13 @@ def get_stock_analysis_data(symbol, period):
         # 매출 데이터 조회
         revenue_data = get_stock_revenue_data(symbol, period)
         
-        # 재무 데이터 조회
-        financial_data = get_stock_financial_data(symbol, period)
-        
         return {
             'symbol': symbol,
             'period': period,
             'stock_info': stock_info,
             'price_data': price_data,
             'revenue_data': revenue_data,
-            'financial_data': financial_data
+            'financial_data': None  # Deprecated - 사용되지 않음
         }
         
     except Exception as e:
