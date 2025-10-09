@@ -3271,28 +3271,28 @@ def check_economy_treasury():
 
 @app.route('/api/economy/treasury/refresh', methods=['POST'])
 def refresh_economy_treasury():
-    """미국 국채금리 데이터 새로고침"""
+    """미국 국채금리 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"국채금리 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_treasury_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"국채 캐시 데이터 삭제 실패")
-        
         print(f"Yahoo Finance에서 최신 국채금리 데이터 조회")
         
-        # 2. Yahoo Finance에서 국채금리 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 국채금리 데이터 조회
         treasury_data = get_treasury_data_from_yahoo(period)
         
         if not treasury_data:
             return jsonify({'error': '국채금리 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_treasury_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"국채 캐시 데이터 삭제 실패")
         
         # 3. 국채 데이터베이스에 저장
         save_success = save_treasury_to_database(treasury_data)
@@ -3608,28 +3608,28 @@ def check_economy_cpi():
 
 @app.route('/api/economy/cpi/refresh', methods=['POST'])
 def refresh_economy_cpi():
-    """CPI 데이터 새로고침"""
+    """CPI 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"CPI Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_cpi_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"CPI 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 CPI 데이터 조회")
         
-        # 2. FRED API에서 CPI 데이터 조회
+        # 1. 먼저 FRED API에서 CPI 데이터 조회
         cpi_data = get_cpi_data_from_fred(period)
         
         if not cpi_data:
             return jsonify({'error': 'CPI 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_cpi_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"CPI 캐시 데이터 삭제 실패")
         
         # 3. CPI 데이터베이스에 저장
         save_success = save_cpi_to_database(cpi_data)
@@ -3945,28 +3945,28 @@ def check_economy_industrial_production():
 
 @app.route('/api/economy/industrial-production/refresh', methods=['POST'])
 def refresh_economy_industrial_production():
-    """제조업 생산지수 데이터 새로고침"""
+    """제조업 생산지수 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"제조업 생산지수 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_industrial_production_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"제조업 생산지수 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 제조업 생산지수 데이터 조회")
         
-        # 2. FRED API에서 제조업 생산지수 데이터 조회
+        # 1. 먼저 FRED API에서 제조업 생산지수 데이터 조회
         indpro_data = get_industrial_production_data_from_fred(period)
         
         if not indpro_data:
             return jsonify({'error': '제조업 생산지수 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_industrial_production_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"제조업 생산지수 캐시 데이터 삭제 실패")
         
         # 3. 제조업 생산지수 데이터베이스에 저장
         save_success = save_industrial_production_to_database(indpro_data)
@@ -4282,28 +4282,28 @@ def check_economy_unemployment():
 
 @app.route('/api/economy/unemployment/refresh', methods=['POST'])
 def refresh_economy_unemployment():
-    """실업률 데이터 새로고침"""
+    """실업률 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"실업률 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_unemployment_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"실업률 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 실업률 데이터 조회")
         
-        # 2. FRED API에서 실업률 데이터 조회
+        # 1. 먼저 FRED API에서 실업률 데이터 조회
         unrate_data = get_unemployment_data_from_fred(period)
         
         if not unrate_data:
             return jsonify({'error': '실업률 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_unemployment_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"실업률 캐시 데이터 삭제 실패")
         
         # 3. 실업률 데이터베이스에 저장
         save_success = save_unemployment_to_database(unrate_data)
@@ -5488,28 +5488,28 @@ def check_economy_gdp():
 
 @app.route('/api/economy/gdp/refresh', methods=['POST'])
 def refresh_economy_gdp():
-    """GDP 데이터 새로고침"""
+    """GDP 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"GDP Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_gdp_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"GDP 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 GDP 데이터 조회")
         
-        # 2. FRED API에서 GDP 데이터 조회
+        # 1. 먼저 FRED API에서 GDP 데이터 조회
         gdp_data = get_gdp_data_from_fred(period)
         
         if not gdp_data:
             return jsonify({'error': 'GDP 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_gdp_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"GDP 캐시 데이터 삭제 실패")
         
         # 3. GDP 데이터베이스에 저장
         save_success = save_gdp_to_database(gdp_data)
@@ -5615,28 +5615,28 @@ def check_economy_sp500():
 
 @app.route('/api/economy/sp500/refresh', methods=['POST'])
 def refresh_economy_sp500():
-    """S&P 500 데이터 새로고침"""
+    """S&P 500 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"S&P 500 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_sp500_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"S&P 500 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 S&P 500 데이터 조회")
         
-        # 2. FRED API에서 S&P 500 데이터 조회
+        # 1. 먼저 FRED API에서 S&P 500 데이터 조회
         sp500_data = get_sp500_data_from_fred(period)
         
         if not sp500_data:
             return jsonify({'error': 'S&P 500 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_sp500_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"S&P 500 캐시 데이터 삭제 실패")
         
         # 3. S&P 500 데이터베이스에 저장
         save_success = save_sp500_to_database(sp500_data)
@@ -5742,28 +5742,28 @@ def check_economy_buffett_indicator():
 
 @app.route('/api/economy/buffett-indicator/refresh', methods=['POST'])
 def refresh_economy_buffett_indicator():
-    """버핏지수 데이터 새로고침"""
+    """버핏지수 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"버핏지수 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_buffett_indicator_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"버핏지수 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 버핏지수 데이터 조회")
         
-        # 2. FRED API에서 버핏지수 데이터 조회
+        # 1. 먼저 FRED API에서 버핏지수 데이터 조회
         buffett_data = get_buffett_indicator_data_from_fred(period)
         
         if not buffett_data:
             return jsonify({'error': '버핏지수 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_buffett_indicator_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"버핏지수 캐시 데이터 삭제 실패")
         
         # 3. 버핏지수 데이터베이스에 저장
         save_success = save_buffett_indicator_to_database(buffett_data)
@@ -5869,28 +5869,28 @@ def check_economy_housing_inventory():
 
 @app.route('/api/economy/housing-inventory/refresh', methods=['POST'])
 def refresh_economy_housing_inventory():
-    """주택재고량 데이터 새로고침"""
+    """주택재고량 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"주택재고량 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_housing_inventory_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"주택재고량 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 주택재고량 데이터 조회")
         
-        # 2. FRED API에서 주택재고량 데이터 조회
+        # 1. 먼저 FRED API에서 주택재고량 데이터 조회
         housing_data = get_housing_inventory_data_from_fred(period)
         
         if not housing_data:
             return jsonify({'error': '주택재고량 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_housing_inventory_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"주택재고량 캐시 데이터 삭제 실패")
         
         # 3. 주택재고량 데이터베이스에 저장
         save_success = save_housing_inventory_to_database(housing_data)
@@ -6259,28 +6259,28 @@ def check_economy_mortgage_delinquency():
 
 @app.route('/api/economy/mortgage-delinquency/refresh', methods=['POST'])
 def refresh_economy_mortgage_delinquency():
-    """모기지 연체율 데이터 새로고침"""
+    """모기지 연체율 데이터 새로고침 - API 성공 후 캐시 삭제"""
     try:
         period = 4  # 4년 고정
         
         print(f"모기지 연체율 Refresh 요청: period={period}")
         
-        # 1. 현재 달 데이터 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        clear_success, deleted_count = clear_mortgage_delinquency_cache_data(cache_year, cache_month)
-        if not clear_success:
-            print(f"모기지 연체율 캐시 데이터 삭제 실패")
-        
         print(f"FRED API에서 최신 모기지 연체율 데이터 조회")
         
-        # 2. FRED API에서 모기지 연체율 데이터 조회
+        # 1. 먼저 FRED API에서 모기지 연체율 데이터 조회
         mortgage_data = get_mortgage_delinquency_data_from_fred(period)
         
         if not mortgage_data:
             return jsonify({'error': '모기지 연체율 데이터를 가져올 수 없습니다.'}), 400
+        
+        # 2. API 성공 후 현재 달 데이터 삭제
+        clear_success, deleted_count = clear_mortgage_delinquency_cache_data(cache_year, cache_month)
+        if not clear_success:
+            print(f"모기지 연체율 캐시 데이터 삭제 실패")
         
         # 3. 모기지 연체율 데이터베이스에 저장
         save_success = save_mortgage_delinquency_to_database(mortgage_data)
@@ -6649,7 +6649,7 @@ def get_stock_revenue():
 
 @app.route('/api/stock/price/refresh', methods=['POST'])
 def refresh_stock_price():
-    """주가 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """주가 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -6663,29 +6663,28 @@ def refresh_stock_price():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_price_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"주가 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 주가 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 주가 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 주가 데이터 조회
         hist, company_name = get_stock_price_data(ticker, 10)
         
         if hist is None or company_name is None:
             return jsonify({'error': '주가 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 분기별 데이터 처리
+        # 2. 분기별 데이터 처리
         quarterly_data = process_quarterly_data(hist, ticker)
         
         if not quarterly_data:
             return jsonify({'error': '주가 데이터 처리 실패'}), 400
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_price_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"주가 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 주가 데이터베이스에 저장
         save_success = save_price_to_database(ticker, company_name, quarterly_data)
@@ -6719,7 +6718,7 @@ def refresh_stock_price():
 
 @app.route('/api/stock/revenue/refresh', methods=['POST'])
 def refresh_stock_revenue():
-    """매출 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """매출 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -6733,27 +6732,26 @@ def refresh_stock_revenue():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_revenue_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"매출 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 매출 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 매출 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 매출 데이터 조회
         revenue_data = get_stock_revenue_data(ticker, 10)
         
         if not revenue_data:
             return jsonify({'error': '매출 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_revenue_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"매출 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 매출 데이터베이스에 저장
         save_success = save_revenue_to_database(ticker, company_name, revenue_data)
@@ -6863,7 +6861,7 @@ def check_stock_operating_income():
 
 @app.route('/api/stock/operating_income/refresh', methods=['POST'])
 def refresh_stock_operating_income():
-    """영업이익 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """영업이익 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -6877,27 +6875,26 @@ def refresh_stock_operating_income():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_operating_income_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"영업이익 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 영업이익 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 영업이익 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 영업이익 데이터 조회
         operating_income_data = get_stock_operating_income_data(ticker, 10)
         
         if not operating_income_data:
             return jsonify({'error': '영업이익 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_operating_income_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"영업이익 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 영업이익 데이터베이스에 저장
         save_success = save_operating_income_to_database(ticker, company_name, operating_income_data)
@@ -7007,7 +7004,7 @@ def check_stock_net_profit():
 
 @app.route('/api/stock/net_profit/refresh', methods=['POST'])
 def refresh_stock_net_profit():
-    """당기순이익 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """당기순이익 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -7021,27 +7018,26 @@ def refresh_stock_net_profit():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_net_profit_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"당기순이익 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 당기순이익 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 당기순이익 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 당기순이익 데이터 조회
         net_profit_data = get_stock_net_profit_data(ticker, 10)
         
         if not net_profit_data:
             return jsonify({'error': '당기순이익 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_net_profit_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"당기순이익 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 당기순이익 데이터베이스에 저장
         save_success = save_net_profit_to_database(ticker, company_name, net_profit_data)
@@ -7151,7 +7147,7 @@ def check_stock_total_debt():
 
 @app.route('/api/stock/total_debt/refresh', methods=['POST'])
 def refresh_stock_total_debt():
-    """총부채 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """총부채 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -7165,27 +7161,26 @@ def refresh_stock_total_debt():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_total_debt_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"총부채 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 총부채 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 총부채 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 총부채 데이터 조회
         total_debt_data = get_stock_total_debt_data(ticker, 10)
         
         if not total_debt_data:
             return jsonify({'error': '총부채 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_total_debt_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"총부채 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 총부채 데이터베이스에 저장
         save_success = save_total_debt_to_database(ticker, company_name, total_debt_data)
@@ -7295,7 +7290,7 @@ def check_stock_current_liabilities():
 
 @app.route('/api/stock/current_liabilities/refresh', methods=['POST'])
 def refresh_stock_current_liabilities():
-    """유동부채 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """유동부채 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -7309,27 +7304,26 @@ def refresh_stock_current_liabilities():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_current_liabilities_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"유동부채 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 유동부채 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 유동부채 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 유동부채 데이터 조회
         current_liabilities_data = get_stock_current_liabilities_data(ticker, 10)
         
         if not current_liabilities_data:
             return jsonify({'error': '유동부채 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_current_liabilities_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"유동부채 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 유동부채 데이터베이스에 저장
         save_success = save_current_liabilities_to_database(ticker, company_name, current_liabilities_data)
@@ -7439,7 +7433,7 @@ def check_stock_interest_expense():
 
 @app.route('/api/stock/interest_expense/refresh', methods=['POST'])
 def refresh_stock_interest_expense():
-    """이자비용 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """이자비용 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -7453,27 +7447,26 @@ def refresh_stock_interest_expense():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_interest_expense_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"이자비용 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 이자비용 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 이자비용 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 이자비용 데이터 조회
         interest_expense_data = get_stock_interest_expense_data(ticker, 10)
         
         if not interest_expense_data:
             return jsonify({'error': '이자비용 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_interest_expense_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"이자비용 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 이자비용 데이터베이스에 저장
         save_success = save_interest_expense_to_database(ticker, company_name, interest_expense_data)
@@ -7583,7 +7576,7 @@ def check_stock_cash():
 
 @app.route('/api/stock/cash/refresh', methods=['POST'])
 def refresh_stock_cash():
-    """현금성자산 데이터 새로고침 - 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
+    """현금성자산 데이터 새로고침 - API 성공 후 특정 종목의 현재 달 데이터만 삭제 후 재생성"""
     try:
         data = request.json
         ticker = data.get('stock_code', '').strip()
@@ -7597,27 +7590,26 @@ def refresh_stock_cash():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_cash_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"현금성자산 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 현금성자산 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 현금성자산 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 현금성자산 데이터 조회
         cash_data = get_stock_cash_data(ticker, 10)
         
         if not cash_data:
             return jsonify({'error': '현금성자산 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_cash_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"현금성자산 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 현금성자산 데이터베이스에 저장
         save_success = save_cash_to_database(ticker, company_name, cash_data)
@@ -7741,27 +7733,26 @@ def refresh_stock_valuation():
         if not ticker:
             return jsonify({'error': '정확한 정보를 입력하세요!'}), 400
         
-        # 1. 해당 종목의 현재 달 데이터만 삭제
         current_date = datetime.now()
         cache_year = current_date.year
         cache_month = current_date.month
         
-        # 특정 종목의 현재 달 데이터 삭제
-        clear_success, deleted_count = clear_valuation_cache_data_for_ticker(ticker, cache_year, cache_month)
-        if not clear_success:
-            print(f"밸류에이션 캐시 데이터 삭제 실패: {ticker}")
-        
         print(f"Yahoo Finance에서 최신 밸류에이션 데이터 조회: {ticker}")
         
-        # 2. Yahoo Finance에서 밸류에이션 데이터 조회
+        # 1. 먼저 Yahoo Finance에서 밸류에이션 데이터 조회
         valuation_data = get_stock_valuation_data(ticker, 10)
         
         if not valuation_data:
             return jsonify({'error': '밸류에이션 데이터를 가져올 수 없습니다.'}), 400
         
-        # 3. 회사명 조회 (주가 데이터에서)
+        # 2. 회사명 조회 (주가 데이터에서)
         price_data = get_price_database_data(ticker, period)
         company_name = price_data[0].get('company_name', f"Company_{ticker}") if price_data else f"Company_{ticker}"
+        
+        # 3. API 성공 후 해당 종목의 현재 달 데이터만 삭제
+        clear_success, deleted_count = clear_valuation_cache_data_for_ticker(ticker, cache_year, cache_month)
+        if not clear_success:
+            print(f"밸류에이션 캐시 데이터 삭제 실패: {ticker}")
         
         # 4. 밸류에이션 데이터베이스에 저장
         save_success = save_valuation_to_database(ticker, company_name, valuation_data)
